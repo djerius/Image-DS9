@@ -1,5 +1,11 @@
 Revision history for Perl extension Image::DS9.
 
+0.08  Wed Aug  2 12:15:40 EDT 2000
+        - made compatible with API change in IPC::XPA v0.04.
+	- display() method now returns display state
+	- _Get() now more flexible about chomping buf and messages;
+	  implemented res_wanthash attribute
+
 0.07  Thu May 11 13:48:37 EDT 2000
 	- max_servers could default to zero if no servers
 	  were running; this would cause problems later if

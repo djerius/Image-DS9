@@ -53,7 +53,7 @@ my @scale_ops = qw( S_linear S_ln S_log S_squared
 		scale => \@scale_ops,
 		all => [ @EXPORT_OK ],
 	       );
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 use Carp;
 use Data::Dumper;
@@ -82,7 +82,10 @@ sub _flatten_hash
 # create new XPA object
 {
 
-  my %def_obj_attrs = ( Server => SERVER, min_servers => 1 );
+  my %def_obj_attrs = ( Server => SERVER, 
+			min_servers => 1,
+			res_wanthash => 1
+		      );
   my %def_xpa_attrs = ( max_servers => 1 );
 
   sub new
@@ -135,9 +138,7 @@ sub nservers
 
 sub res
 {
-  my $self = shift;
-
-  $self->{res};
+  %{$_[0]->{res}};
 }
 
 {
@@ -165,9 +166,9 @@ sub res
     my ( $self, $image, $attrs ) = @_;
     
     my %attrs = ( $attrs ? %$attrs : () );
-
+    
     my $data = $image;
-
+    
     if ( $use_PDL && 'PDL' eq ref( $image ) )
     {
       $attrs{bitpix} = $map{$image->get_datatype};
@@ -198,10 +199,100 @@ sub display
 {
   my ( $self, $state ) = @_;
 
-  croak( CLASS, '->display -- unknown display type' )
-    if $state ne D_blink && $state ne D_tile && $state ne D_single;
+  unless ( defined $state )
+  {
+    my %blink;
+    my %single;
+    my %tile;
 
-  $self->Set( $state );
+    my $attrs = { chomp => 1 };
+
+    # catch all of the exceptions and work around them
+    # so as to get maximum data back to caller
+    eval { %blink  = $self->Get( 'blink', 1, $attrs )  };
+    %blink = $self->res if $@;
+
+    eval { %single = $self->Get( 'single', 1, $attrs ) };
+    %single = $self->res if $@;
+
+    eval { %tile   = $self->Get( 'tile', 1, $attrs )   };
+    %tile = $self->res if $@;
+    
+    # create union of server list
+    my %servers;
+    $servers{$_}++ foreach ( keys(%blink), 
+			     keys(%single), 
+			     keys(%tile) );
+    my @servers = keys %servers;
+
+    my %results;
+
+    foreach my $server ( @servers )
+    {
+      my @messages;
+
+      unless ( exists $single{$server} &&
+	       exists $tile{$server} &&
+	       exists $blink{$server} ) 
+      {
+	$results{$server}= { 
+			     name => $server,
+			     message => 
+			     "server did not exist during part of operation" };
+	next;
+      }
+      
+      for my $what ( \%blink, \%single, \%tile )
+      {
+	push @messages, $what->{$server}{message}
+	  if exists $what->{$server}{message};
+      }
+
+      if ( @messages )
+      {
+	$results{$server} = {
+			      name => $server,
+			      message => join( '; ', @messages ) };
+	next;
+      }
+
+      $results{$server} = { 
+			   name => $server,
+			   buf => 
+			    $blink{$server}{buf}  eq 'yes' ? D_blink : 
+			    $single{$server}{buf} eq 'yes' ? D_single :
+			    $tile{$server}{buf}   eq 'yes' ? D_tile :
+			      'unknown'
+			    };
+    }
+    
+    # handle errors now
+    if ( grep { exists $_->{message} } values %results )
+    {
+      $self->{res} = \%results;
+      croak( CLASS, '->display -- error obtaining status' );
+    }
+
+    if ( 1 == $self->{xpa_attrs}{max_servers} && ! $self->{res_wanthash} )
+    {
+      my ( $server ) = keys %results;
+      return $results{$server}{buf};
+    }
+    
+    else
+    {
+      return %results;
+    }
+  }
+
+  else
+  {
+    
+    croak( CLASS, '->display -- unknown display type' )
+      if $state ne D_blink && $state ne D_tile && $state ne D_single;
+    
+    $self->Set( $state );
+  }
 }
 
 use constant T_Grid	 => 'grid';
@@ -214,7 +305,7 @@ sub tile_mode
 
   unless ( defined $state )
   {
-    return $self->Get( 'tile mode' );
+    return $self->Get( 'tile mode', { chomp => 1 } );
   }
 
   else
@@ -230,7 +321,7 @@ sub colormap
 
   unless ( defined $colormap )
   {
-    return $self->Get( 'colormap' );
+    return $self->Get( 'colormap', { chomp => 1 } );
   }
 
   else
@@ -258,7 +349,7 @@ sub frame
 
   unless( defined $cmd )
   {
-    return $self->Get( 'frame' );
+    return $self->Get( 'frame', { chomp => 1 } );
   }
 
   elsif ( 'show' eq $cmd )
@@ -288,7 +379,7 @@ sub file
 
   unless( defined $file )
   {
-    return $self->Get( 'file' );
+    return $self->Get( 'file', { chomp => 1 } );
   }
 
   else
@@ -381,39 +472,73 @@ sub Set
 {
   my ( $self, $cmd, $buf ) = @_;
 
-  $self->{res} = [
-    $self->{xpa}->Set( $self->{Server}, $cmd, $buf, $self->{xpa_attrs} ) ];
-  if ( grep { defined $_->{message} } @{$self->{res}} )
+  my %res = $self->{xpa}->Set( $self->{Server}, $cmd, $buf, 
+					    $self->{xpa_attrs} );
+
+  # chomp messages
+  foreach my $res ( values %res )
   {
+    chomp $res->{message} if exists $res->{message};
+  }
+
+  if ( grep { defined $_->{message} } values %res )
+  {
+    $self->{res} = \%res;
     croak( CLASS, " -- error sending data to server" );
   }
 
-  croak( CLASS, " -- fewer than ",$self->{min_servers}," server(s) responded" )
-    if @{$self->{res}} < $self->{min_servers};
+  if ( keys %res < $self->{min_servers} )
+  {
+    $self->{res} = \%res;
+    croak( CLASS, " -- fewer than ", $self->{min_servers}, 
+	   " server(s) responded" )
+  }
 }
 
 sub Get
 {
-  my ( $self, $cmd ) = @_;
-  my @res = $self->{xpa}->Get( $self->{Server}, $cmd, $self->{xpa_attrs} );
-  if ( grep { defined $_->{message} } @res )
+  my ( $self, $cmd, @stuff ) = @_;
+
+  my $attr = pop @stuff if 'HASH' eq ref $stuff[$#stuff];
+
+  my $res_wanthash = unshift @stuff;
+
+  my %attr = ( $attr ? %$attr : () );
+
+  $res_wanthash = $self->{res_wanthash} unless defined $res_wanthash;
+
+  my %res = $self->{xpa}->Get( $self->{Server}, $cmd, 
+			       $self->{xpa_attrs} );
+
+  # chomp results
+  foreach my $res ( values %res )
   {
-    $self->{res} = \@res;
+    chomp $res->{message} if exists $res->{message};
+    chomp $res->{buf} if exists $res->{buf} && exists $attr{chomp};
+  }
+
+  if ( grep { defined $_->{message} } values %res )
+  {
+    $self->{res} = \%res;
     croak( CLASS, " -- error sending data to server" );
   }
   
-  croak( CLASS, " -- fewer than ",$self->{min_servers}," servers(s) responded" )
-    if @res < $self->{min_servers};
-
-  if ( 1 == $self->{xpa_attrs}{max_servers} )
+  if ( keys %res < $self->{min_servers} )
   {
-    chomp $res[0]->{buf};
-    return $res[0]->{buf};
+    $self->{res} = \%res;
+    croak( CLASS, " -- fewer than ", $self->{min_servers},
+	   " servers(s) responded" )
   }
+
+  if ( 1 == $self->{xpa_attrs}{max_servers} && ! $res_wanthash )
+  {
+    my ( $server ) = keys %res;
+    return $res{$server}->{buf};
+  }
+
   else
   {
-    return map { chomp $_->{buf}; 
-	         { name => $_->{name}, buf => $_->{buf} } } @res;
+    return %res;
   }
 }
 
@@ -423,7 +548,8 @@ sub Get
 
 1;
 __END__
-# Below is the stub of documentation for your module. You better edit it!
+
+=pod
 
 =head1 NAME
 
@@ -443,10 +569,11 @@ Image::DS9 - interface to the DS9 image display and analysis program
   $dsp->array( $image );
   $dsp->array( $image, \%attrs );
 
-  $dsp->blink( $state );
-
   $dsp->colormap( $colormap );
   @colormaps = $dsp->colormap;
+
+  $dsp->display( $display_type );
+  @display = $dsp->display;
 
   $dsp->frame( $frame_op );
   @frames = $dsp->frame;
@@ -536,35 +663,53 @@ C<NO>.
 =head2 Return values
 
 Because a single B<Image::DS9> object may communicate with multiple
-instances of B<DS9>, most return values are lists, rather than scalars.
-These are lists of hashes, with keys C<name> and C<buf>.  For example,
+instances of B<DS9>, most return values are hashes, rather
+than scalars.  The hash has as keys the names of the servers, with the
+values being references to hashes with the keys C<name>, C<buf> and C<message>.
+The C<buf> key will be present if there are no errors for that server,
+the C<message> if there were. 
+
+For example,
 
 	use Data::Dumper;
-	@colormaps = $dsp->colormap;
+	%colormaps = $dsp->colormap;
 	print Dumper \@colormaps;
 
 yields
 
-	$VAR1 = [
+	$VAR1 = {
+	         'DS9:ds9 838e2ab4:32832' =>
 	          {
 	            'name' => 'DS9:ds9 838e2ab4:32832',
-	            'buf' => 'Grey
-	'
+	            'buf' => 'Grey'
 	          }
-	        ];
+	        };
 
-Note the end of line character in the colormap name.
-
-B<However>, if the object was created with B<max_servers> set to 1,
-it returns the contents of C<buf> directly, i.e.
+If you know that there is only one server out there (for example,
+if the object was created with B<max_servers> set to 1, you can
+set the object's B<ref_wanthash> attribute to zero.  In that case,
+if there is only one server, it will return the 
+data directly, i.e.
 
 	$colormap = $dsp->colormap;
 
+Note that if B<max_servers> is greater than zero, playing with
+B<ref_wanthash> doesn't do anything.
+
+Some methods do not normally return anything, for example
+
+	$dsp->colormap( 'Grey' );
+
+
 =head2 Error Returns
 
-In case of error, an exception is thrown, and the results
-from the XPA call which failed are made available via the B<res>
-method.
+In case of error, an exception is thrown via B<croak()>.  
+The B<res()> method will return a hash, keyed off of the servers name.
+For each server which had an error, the hash value will be a reference
+to a hash containing the keys C<name> and C<message>; the latter
+will contain error information.  For those commands which return
+data, and for those servers which did not have an error, the
+C<buf> key will be available.
 
 =head2 Methods
 
@@ -598,6 +743,11 @@ The minimum number of servers which should respond to commands.  If
 a response is not received from at least this many servers, an exception
 will be thrown.  It defaults to C<1>.
 
+=item res_wanthash
+
+If non-zero (the default) this indicates that results are returned
+as a reference to a hash.  If this has a value of zero, and B<max_servers> is 
+C<1>, the results are returned directly (see L<Return values>).
 
 =back
 
@@ -642,19 +792,43 @@ number.
 
 =back
 
+=item colormap
+
+  $dsp->colormap( $colormap );
+  @colormaps = $dsp->colormap;
+
+If an argument is specified, it should be the name of a colormap (case
+is not important).  If no argument is specified, the current colormaps
+for all of the B<DS9> instances is returned, as a list containing
+references to hashes with the keys C<name> and C<buf>.  The latter
+will contain the colormap name.
+
+
 =item display
 
   $dsp->display( $state );
+  %displays = $dsp->display;
 
-Change how frames are displayed.  C<$state> may be one of the constants
-C<D_blink>, C<D_tile>, or C<D_single> (or, equivalently, 
-'blink', 'tile', 'single' ).  The constants are available
-by importing the C<display> tag.
+If an argument is specified, this call will change how the data are
+displayed. C<$state> may be one of the constants C<D_blink>,
+C<D_tile>, or C<D_single> (or, equivalently, 'blink', 'tile', 'single'
+).  The constants are available by importing the C<display> tag.
+
+If no argument is specified, the current display states of the B<DS9> servers 
+are returned (see L<Return values> for the format).  The state is
+will be returned as a string equivalent to the constants C<D_blink>,
+C<D_tile> or C<D_single>.  For instance:
+
+  my $ds9 = new DS9( { max_servers => 1, res_wanthash => 0 } );
+
+  print "We're blinking!\n" if D_blink eq $ds9->display;
+
 
 =item file
 
   $dsp->file( $file );
   $dsp->file( $file, $type );
+  %files = $dsp->file;
 
 Display the specified C<$file>.  The file type is optional, and may be
 one of the following constants: C<FT_MosaicImage>, C<FT_MosaicImages>,
@@ -663,29 +837,7 @@ C<'mosaicimages'>, C<'mosaic'>, or C<'array'> ). (Import the C<filetype>
 tag to get the constants).
 
 If called without a value, it will return the current file name loaded
-for the curent frame.
-
-=item tile_mode
-
-  $dsp->tile_mode( $mode );
-
-The tiling mode may be specified by setting C<$mode> to C<T_Grid>,
-C<T_Column>, or C<T_Row>.  These constants are available if the
-C<tile_op> tags are imported.  Otherwise, use C<'grid'>, c<'column'>,
-or C<'row'>.  If called without a value, it will return the
-current tiling mode.
-
-
-=item colormap
-
-  $dsp->colormap( $colormap );
-  @colormaps = $dsp->colormap;
-
-If an argument is specified, it should be the name of a colormap (case
-is not important).  If no arguments are specified, the current colormaps
-for all of the B<DS9> instances is returned, as a list containing
-references to hashes with the keys C<name> and C<buf>.  The latter
-will contain the colormap name.
+for the current frame.
 
 
 =item frame
@@ -779,6 +931,16 @@ C<'global'>
 ).
 
 The constants are available if the C<scale> tag is imported.
+
+=item tile_mode
+
+  $dsp->tile_mode( $mode );
+
+The tiling mode may be specified by setting C<$mode> to C<T_Grid>,
+C<T_Column>, or C<T_Row>.  These constants are available if the
+C<tile_op> tags are imported.  Otherwise, use C<'grid'>, c<'column'>,
+or C<'row'>.  If called without a value, it will return the
+current tiling mode.
 
 =item zoom
 

@@ -4,7 +4,7 @@ use Data::Dumper;
 use PDL;
 use Image::DS9 qw( :all );
 
-my $ds9 = new Image::DS9;
+my $ds9 = new Image::DS9( { max_servers => 1, res_wanthash => 0 } );
 
 my $k = zeroes(double, 50,50)->rvals;
 
@@ -16,11 +16,18 @@ $k = zeroes(double, 100, 100)->rvals;
 
 $ds9->array( $k );
 
-$ds9->blink( ON );
+$ds9->display( D_blink );
 
-$ds9->tile( ON );
+print $ds9->display, "\n";
+
+$ds9->display eq D_blink or die( "display state not blink?" );
+
+$ds9->display( D_tile );
+
+$ds9->display eq D_tile or die( "display state not tile?" );
 
 $ds9->tile_mode( T_ROW );
 $ds9->tile_mode( T_COLUMN );
+
 print "colormap = ", $ds9->colormap, "\n";
 
