@@ -48,7 +48,7 @@ my @file_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
 		all => [ @frame_ops, @tile_ops, @extra_ops, @file_ops ],
 		file_ops => \@file_ops,
 	       );
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 use Carp;
 use Data::Dumper;
@@ -85,30 +85,38 @@ sub _flatten_hash
     
     # load up attributes, first from defaults, then
     # from user.  ignore bogus elements in user attributes hash
-    my %obj_attrs = %def_obj_attrs;
-    my %xpa_attrs = %def_xpa_attrs;
-
-    if ( $u_attrs )
-    {
-      $obj_attrs{$_} = $u_attrs->{$_} 
-        foreach grep { exists $obj_attrs{$_} } keys %$u_attrs;
-
-      $xpa_attrs{$_} = $u_attrs->{$_} 
-        foreach grep { exists $xpa_attrs{$_} } keys %$u_attrs;
-    }
 
     my $self = bless { 
 		      xpa => IPC::XPA->Open, 
-		      %obj_attrs,
-		      xpa_attrs => \%xpa_attrs,
+		      %def_obj_attrs,
+		      xpa_attrs => { %def_xpa_attrs},
 		      res => undef
 		     }, $class;
     
     croak( CLASS, "->new -- error creating XPA object" )
       unless defined $self->{xpa};
 
+    
+    $self->{xpa_attrs}{max_servers} = $self->nservers;
+
+    $self->set_attrs($u_attrs);
+
     $self;
   }
+
+  sub set_attrs
+  {
+    my $self = shift;
+    my $u_attrs = shift;
+
+    return unless $u_attrs;
+    $self->{xpa_attrs}{$_} = $u_attrs->{$_}
+      foreach grep { exists $def_xpa_attrs{$_} } keys %$u_attrs;
+    
+    $self->{$_} = $u_attrs->{$_} 
+      foreach grep { exists $def_obj_attrs{$_} } keys %$u_attrs;
+  }
+
 }
 
 sub nservers
@@ -486,7 +494,8 @@ An alternate server to which to communicate.  It defaults to C<ds9>.
 =item max_servers
 
 The maximum number of servers to which to communicate.  It defaults to
-C<1>.
+the number of C<DS9> servers running at the time the constructor is
+called.
 
 =item min_servers
 

@@ -1,5 +1,12 @@
 Revision history for Perl extension Image::DS9.
 
+0.05  Tue May  9 11:35:39 EDT 2000
+	- added more frame op tags
+	- made op tags more readable (lowercased)
+	- added set_attrs method (not yet documented)
+	- set max_servers to nservers() in the constructure
+	- fixed many stupid details I forgot when adding the file method
+
 0.04  Mon May  8 19:30:15 EDT 2000
 	- added file method
 
