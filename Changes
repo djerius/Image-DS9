@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.14  Mon Jan 28 15:12:24 EST 2002
+        - updated nservers() to track new IPC::XPA::Access API.
+
 0.13  Tue Oct 30 00:24:14 EST 2001
 	- results buffer splitting didn't ignore leading white space,
 	  leading to extra leading elements in the returned array.

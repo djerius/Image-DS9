@@ -71,7 +71,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 use Carp;
 use Data::Dumper;
@@ -154,7 +154,15 @@ sub nservers
 {
   my $self = shift;
 
-  $self->{xpa}->Access( $self->{Server}, 'gs' );
+  my %res = $self->{xpa}->Access( $self->{Server}, 'gs' );
+
+  if ( grep { defined $_->{message} } values %res )
+  {
+    $self->{res} = \%res;
+    croak( __PACKAGE__, ": error sending data to server" );
+  }
+  
+  keys %res;
 }
 
 #####################################################################
