@@ -71,7 +71,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 use Carp;
 use Data::Dumper;
@@ -301,7 +301,7 @@ BEGIN
 
       for my $res ( values %results )
       {
-	$res->{buf} = [ split( / /, $res->{buf} ) ]
+	$res->{buf} = _splitbuf( $res->{buf} )
 	  if $Mode{$mode} > 1;
       }
 
@@ -392,7 +392,7 @@ sub crosshair
     
     for my $res ( values %results )
     {
-      $res->{buf} = [ split( / /, $res->{buf} ) ]
+      $res->{buf} = _splitbuf( $res->{buf} );
     }
     
     unless ( wantarray() )
@@ -633,7 +633,7 @@ sub frame
 
       for my $res ( values %results )
       {
-	$res->{buf} = [ split( / /, $res->{buf} ) ];
+	$res->{buf} = _splitbuf( $res->{buf} );
       }
 
       unless ( wantarray() )
@@ -1105,7 +1105,7 @@ BEGIN
 	
 	for my $res ( values %results )
 	{
-	  $res->{buf} = [ split( / /, $res->{buf} ) ];
+	  $res->{buf} = _splitbuf( $res->{buf} );
 	}
 	
 	unless ( wantarray() )
@@ -1222,7 +1222,7 @@ BEGIN
 	
 	for my $res ( values %results )
 	{
-	  $res->{buf} = [ split( / /, $res->{buf} ) ]
+	  $res->{buf} = _splitbuf( $res->{buf} )
 	    if $Mode{$what} > 1;
 	}
 	
@@ -1601,6 +1601,14 @@ sub _Get
   {
     return %res;
   }
+}
+
+sub _splitbuf
+{
+  my $buf = shift;
+  $buf =~ s/^\s+//;
+  $buf =~ s/\s+$//;
+  [ split( / /, $buf ) ]
 }
 
 
