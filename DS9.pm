@@ -1149,7 +1149,7 @@ sub wcs
   my $what = shift;
 
   # query?
-  if ( undefined $what ||
+  if ( ! defined $what ||
        ( WCS_align eq $what || WCS_format eq $what ) && 0 == @_ )
   {
     return $self->_Get( "wcs $what", { chomp => 1, res_wanthash => 1 } );
