@@ -1,5 +1,13 @@
 Revision history for Perl extension Image::DS9.
 
+0.06  Wed May 10 13:24:39 EDT 2000
+	- renamed frame ops once more
+	- renamed file ops to filetype
+	- removed tile() and blink()
+	- move _Set() and _Get to Set() and Get(); no docs yet
+	- added display(), scale(), zoom()
+	- returned buffers from Get are now chomped
+
 0.05  Tue May  9 11:35:39 EDT 2000
 	- added more frame op tags
 	- made op tags more readable (lowercased)

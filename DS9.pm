@@ -11,12 +11,9 @@ BEGIN {
 
 
 require Exporter;
-require AutoLoader;
 
-@ISA = qw(Exporter AutoLoader);
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
+@ISA = qw( Exporter );
+
 @EXPORT = qw( );
 
 my @frame_ops = qw( 
@@ -34,21 +31,30 @@ my @frame_ops = qw(
 		   FR_last
 		  );
 
+my @display_ops = qw( D_blink D_tile D_single );
+
 my @tile_ops  = qw( T_Grid T_Column T_Row );
 
-my @extra_ops = qw( ON OFF );
+my @extra_ops = qw( ON OFF YES NO );
 
 my @filetype_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
 
-@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @filetype_ops );
+my @scale_ops = qw( S_linear S_ln S_log S_squared 
+		    S_sqrt S_minmax S_zscale S_user S_local S_global );
+
+
+@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @filetype_ops, 
+	       @display_ops, @scale_ops );
 
 %EXPORT_TAGS = ( 
 		frame => \@frame_ops,
 		tile => \@tile_ops,
-		all => [ @frame_ops, @tile_ops, @extra_ops, @filetype_ops ],
 		filetype => \@filetype_ops,
+		display => \@display_ops,
+		scale => \@scale_ops,
+		all => [ @EXPORT_OK ],
 	       );
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 use Carp;
 use Data::Dumper;
@@ -57,8 +63,10 @@ use constant SERVER => 'ds9';
 use constant CLASS => 'Image::DS9';
 
 
-use constant ON		 => 1;
-use constant OFF	 => 0;
+use constant ON		=> 1;
+use constant OFF	=> 0;
+use constant YES	=> 'yes';
+use constant NO		=> 'no';
 
 
 # Preloaded methods go here.
@@ -179,40 +187,22 @@ sub res
 	   join( ',', map { "'$_'" } @notset) )
       if @notset;
 
-    $self->_Set( 'array ['._flatten_hash(\%attrs).']', $data );
+    $self->Set( 'array ['._flatten_hash(\%attrs).']', $data );
   }
 }
 
-sub blink
+use constant D_tile   => 'tile';
+use constant D_single => 'single';
+use constant D_blink  => 'blink';
+
+sub display
 {
   my ( $self, $state ) = @_;
 
-  unless ( defined $state )
-  {
-    return $self->_Get( 'blink' );
-  }
+  croak( CLASS, '->display -- unknown display type' )
+    if $state ne D_blink && $state ne D_tile && $state ne D_single;
 
-  else
-  {
-    $self->_Set( "blink $state" );
-  }
-
-}
-
-sub tile
-{
-  my ( $self, $state ) = @_;
-
-  unless ( defined $state )
-  {
-    return $self->_Get( 'tile' );
-  }
-
-  else
-  {
-    $self->_Set( "tile $state" );
-  }
-
+  $self->Set( $state );
 }
 
 use constant T_Grid	 => 'grid';
@@ -225,12 +215,12 @@ sub tile_mode
 
   unless ( defined $state )
   {
-    return $self->_Get( 'tile mode' );
+    return $self->Get( 'tile mode' );
   }
 
   else
   {
-    $self->_Set( "tile mode $state" );
+    $self->Set( "tile mode $state" );
   }
 
 }
@@ -241,12 +231,12 @@ sub colormap
 
   unless ( defined $colormap )
   {
-    return $self->_Get( 'colormap' );
+    return $self->Get( 'colormap' );
   }
 
   else
   {
-    $self->_Set( "colormap $colormap" );
+    $self->Set( "colormap $colormap" );
   }
 }
 
@@ -269,12 +259,12 @@ sub frame
 
   unless( defined $cmd )
   {
-    return $self->_Get( 'frame' );
+    return $self->Get( 'frame' );
   }
 
   else
   {
-    $self->_Set( "frame $cmd" );
+    $self->Set( "frame $cmd" );
   }
 
 
@@ -291,19 +281,96 @@ sub file
 
   unless( defined $file )
   {
-    return $self->_Get( 'file' );
+    return $self->Get( 'file' );
   }
 
   else
   {
     $type ||= '';
-    $self->_Set( "file $type $file" );
+    $self->Set( "file $type $file" );
   }
 
 
 }
 
-sub _Set
+use constant S_linear	=> 'linear';
+use constant S_ln	=> 'ln';
+use constant S_log	=> 'log';
+use constant S_squared	=> 'squared';
+use constant S_sqrt	=> 'sqrt';
+use constant S_minmax	=> 'minmax';
+use constant S_zscale	=> 'zscale';
+use constant S_user	=> 'user';
+use constant S_local	=> 'local';
+use constant S_global	=> 'global';
+
+my @scale_scopes = ( S_local, S_global );
+my @scale_modes = ( S_minmax, S_zscale, S_user );
+my @scale_algs = ( S_linear, S_ln, S_log, S_squared, S_sqrt );
+
+sub scale
+{
+  my $self = shift;
+  my $what = shift;
+
+  if ( 'scope' eq $what )
+  {
+    my $scope = shift;
+    grep { $_ eq $scope } @scale_scopes
+      or croak( "unknown scale scope value" );
+
+    $self->Set( "scale scope $scope" );
+  }
+  elsif ( 'limits' eq $what )
+  {
+    my $minmax = shift;
+    croak ( 'expected array ref for scale limit value' )
+      unless 'ARRAY' eq ref($minmax);
+    croak ( 'not enough values for scale limits' )
+      unless $#{$minmax} >= 2;
+
+    $self->Set( "scale limits $minmax->[0] $minmax->[1]" );
+  }
+  elsif( 'mode' eq $what )
+  {
+    my $mode = shift;
+    grep { $_ eq $mode } @scale_modes
+      or croak( "unknown scale mode value" );
+
+    $self->Set( "scale mode $mode" );
+  }
+  else
+  {
+    grep { $_ eq $what } @scale_algs
+      or croak( "unknown scale algorithm" );
+    $self->Set( "scale $what" );
+  }
+}
+
+sub zoom
+{
+  my $self = shift;
+  my $what = shift;
+
+  if ( 'abs' eq $what )
+  {
+    $self->Set( "zoom to $what" );
+  }
+  elsif ( 'rel' eq $what )
+  {
+    $self->Set( "zoom $what" );
+  }
+  elsif ( 0 == $what )
+  {
+    $self->Set( "zoom to fit" );
+  }
+  else
+  {
+    $self->Set( "zoom to $what" );
+  }
+}
+
+sub Set
 {
   my ( $self, $cmd, $buf ) = @_;
 
@@ -318,7 +385,7 @@ sub _Set
     if @res < $self->{min_servers};
 }
 
-sub _Get
+sub Get
 {
   my ( $self, $cmd ) = @_;
   my @res = $self->{xpa}->Get( $self->{Server}, $cmd, $self->{xpa_attrs} );
@@ -408,7 +475,7 @@ Predefined constants may be imported when the B<Image::DS9> package
 is loaded, by specifying one or more of the following tags:
 C<frame>, C<tile>, C<filetype>, C<all>.  For example:
 
-	use Image::DS9 qw( :frame :tile :filetype );
+	use Image::DS9 qw( :frame :tile :filetype :display );
 
 The C<frame> group imports
 C<FR_center>,
@@ -435,9 +502,29 @@ C<FT_MosaicImages>,
 C<FT_Mosaic>,
 C<FT_Array>.
 
+The C<display> group imports
+C<D_blink>,
+C<D_tile>,
+C<D_single>.
+
+The C<scale> group imports
+C<S_linear>,
+C<S_ln>,
+C<S_log>,
+C<S_squared>,
+C<S_sqrt>,
+C<S_minmax>,
+C<S_zscale>,
+C<S_user>,
+C<S_local>,
+C<S_global>.
+
+
 The C<all> group imports all of the above groups, as well as
 C<ON>,
-C<OFF>.
+C<OFF>,
+C<YES>
+C<NO>.
 
 
 =head2 Return values
@@ -549,13 +636,14 @@ number.
 
 =back
 
-=item blink
+=item display
 
-  $dsp->blink( $state );
+  $dsp->display( $state );
 
-Turn frame blinking on or off.  B<$state> may be the constants 
-C<ON>, C<OFF>, C<'yes'>, C<'no'>, C<0>, C<1>.  If called without a value,
-it will return the current status of frame blinking.
+Change how frames are displayed.  C<$state> may be one of the constants
+C<D_blink>, C<D_tile>, or C<D_single> (or, equivalently, 
+'blink', 'tile', 'single' ).  The constants are available
+by importing the C<display> tag.
 
 =item file
 
@@ -571,23 +659,15 @@ tag to get the constants).
 If called without a value, it will return the current file name loaded
 for the curent frame.
 
-=item tile
-
-  $dsp->tile( $state );
-
-Control tiling of frames.  Set C<$state> to either C<ON> or C<OFF> (or
-C<'yes'>, C<'no'>, or C<1>, C<0>) to turn tiling on or off.  If called
-without a value, it will return the current status of frame blinking.
-
 =item tile_mode
 
   $dsp->tile_mode( $mode );
 
 The tiling mode may be specified by setting C<$mode> to C<T_Grid>,
 C<T_Column>, or C<T_Row>.  These constants are available if the
-C<tile_op> tags are imported.  Otherwise, use C<'mode grid'>, c<'mode
-column'>, or C<'mode row'>.  If called without a value, it will return
-the current tiling mode.
+C<tile_op> tags are imported.  Otherwise, use C<'grid'>, c<'column'>,
+or C<'row'>.  If called without a value, it will return the
+current tiling mode.
 
 
 =item colormap
@@ -647,6 +727,60 @@ are available via this method.  It returns a reference to an
 array of hashes, one per instance of B<DS9> addressed by the object.
 See the B<IPC::XPA> documentation for more information on what
 the hashes contain.
+
+
+=item scale
+
+  $dsp->scale( $algorithm );
+  $dsp->scale( limits => [ $min, $max ] );
+  $dsp->scale( mode => $mode );
+  $dsp->scale( scope => $scope );
+
+This specifies how the data will be scaled.  C<$algorithm> may
+be one of the constants 
+C<S_linear>,
+C<S_ln>,
+C<S_log>,
+C<S_squared>,
+C<S_sqrt>
+(or, equivalently, 
+C<'linear'>,
+C<'ln'>,
+C<'log'>,
+C<'squared'>,
+C<'sqrt'>).
+
+C<$mode> may be one of 
+C<S_minmax>,
+C<S_zscale>,
+C<S_user>
+(or, equivalently,
+C<'minmax'>,
+C<'zscale'>,
+C<'user'>).
+
+C<$scope> may be on of
+C<S_local>,
+C<S_global>
+(or, equivalently,
+C<'local'>,
+C<'global'>
+).
+
+The constants are available if the C<scale> tag is imported.
+
+=item zoom
+
+  $dsp->zoom( abs => $zoom );
+  $dsp->zoom( rel => $zoom );
+  $dsp->zoom( $zoom );
+
+This changes the zoom value for the current frame.  C<$zoom> is a
+positive numerical value.  A zoom value may be absolute or relative.
+This is explicitly specified in the second and third forms of the
+method invocation.  If not specified (as in the third form)
+it is absolute.  To zoom such that the image fits with in the frame,
+specify a zoom value of C<0>.
 
 
 =back
