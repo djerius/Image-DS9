@@ -5,12 +5,15 @@ use Test::More;
 
 use Image::DS9;
 
-BEGIN { plan( tests => 2 ) }
-
 eval 'use PDL';
 if ( $@ )
 {
+  diag( $@ );
   plan( skip_all => 'No PDL; skipping' );
+}
+else
+{
+  plan( tests => 2 )	
 }
 
 require 't/common.pl';
