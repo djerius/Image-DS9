@@ -172,6 +172,31 @@ The minimum number of servers which should respond to commands.  If
 a response is not received from at least this many servers, an exception
 will be thrown.  It defaults to C<1>.
 
+=item ResErrCroak
+
+If true, queries sent to B<ds9> which returns fewer values than
+expected will result in B<croak()>s.  This may be a problem if B<ds9>
+is queried for inappropriate information. For example, it will return
+an empty result if a image (i.e. not a binned event list) is displayed
+in the current frame and the names of the binned columns are queried
+(which of course makes no sense).  See the C<ResErrWarn> and
+C<ResErrIgnore> attributes for ways of handling this.
+
+If too I<many> results are returned, this module will always croak.
+B<ResErrCroak> is the default mode.
+
+=item ResErrWarn
+
+If true, queries sent to B<ds9> which returns fewer values than
+expected will result in B<carp()>s and will be compensated for by
+filling in the missing values with empty strings.
+
+=item ResErrIgnore
+
+Queries sent to B<ds9> which returns fewer values than expected are
+silently compensated for by filling in the missing values with
+empty strings.
+
 =back
 
 For example,
