@@ -1467,7 +1467,7 @@ sub pan
     unless @coords <= 3;
   
   croak( __PACKAGE__, "->pan: unknown coordinate system `$coords[2]'\n" )
-    if @coords == 3 && !$Coords{$coords[3]};
+    if @coords == 3 && !$Coords{$coords[2]};
   
   $self->Set( join(' ', 'pan', $what eq 'abs' ? 'to' : (), @coords ) );
 }
