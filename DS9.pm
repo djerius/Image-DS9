@@ -1027,7 +1027,7 @@ C<D_tile>, or C<D_single> (or, equivalently, 'blink', 'tile', 'single'
 ).  The constants are available by importing the C<display> tag.
 
 If no argument is specified, the current display states of the B<DS9> servers 
-are returned (see L<Return values> for the format).  The state is
+are returned (see L</Return values> for the format).  The state is
 will be returned as a string equivalent to the constants C<D_blink>,
 C<D_tile> or C<D_single>.  For instance:
 
@@ -1075,7 +1075,7 @@ Command B<DS9> to do frame operations.  Frame operations are nominally
 strings.  As B<DS9> will interpret any string which isn't a frame operation
 as the name of frame to switch to (or create, if necessary), B<Image::DS9>
 provides constants for the standard operations to prevent typos.  See
-the L<Constants> section.
+L</Constants>.
 Otherwise, use the strings 
 C<active>,
 C<all>,
@@ -1124,8 +1124,7 @@ return it.
   $dsp->mode( $state );
 
 Change (or query) the first mouse button mode state.  Predefined
-states are available via the C<mode_ops> group; see the L<Constants>
-section.
+states are available via the C<mode_ops> group; see L</Constants>.
 
 =item orient
 
@@ -1133,8 +1132,7 @@ section.
   $dsp->orient( $state );
 
 Change (or query) the orientation of the current frame. Predefined
-states are available via the C<orient_ops> group; see the L<Constants>
-section.
+states are available via the C<orient_ops> group; see L</Constants>.
 
 =item rotate
 
@@ -1204,7 +1202,7 @@ C<'global'>
 ).
 
 The constants are available if the C<scale> tag is imported (see
-L<Constants>).  The second set of invocations shown above illustrates
+L</Constants>).  The second set of invocations shown above illustrates
 how to determine the current values of the scale parameters.
 
 =item tile_mode
