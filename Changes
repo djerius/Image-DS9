@@ -1,5 +1,35 @@
 Revision history for Perl extension Image::DS9.
 
+0.10
+	Externals:
+	- added invert option to colormap()
+	- added save option to file()
+	- added bin()
+	- added crosshair()
+	- added cursor()
+	- added lower()
+	- added raise()
+	- added regions()
+	- added wcs()
+	- added view()
+	- renamed T_Grid, T_Column, and T_Row to T_grid, T_column,
+	  T_row
+
+	- iconify() didn't return a true/false value (it directly
+	  returned what DS9 sent it).
+	- bugs fixed in display() code for queries which had errors
+	- fixed up return for scale(S_limits) to be more consistent
+
+	- Set() and Get() (low level access to XPA channel) are
+	  now documented
+
+	Internals:
+	- cleaned up module setup code and creation of export tags
+	- lots more error checking of arguments. this may make
+	  following updates to DS9 a little more work, but makes
+	  it easier for users of this module
+	- improvements to documentation
+
 0.09  Fri Sep  8 23:31:03 EDT 2000
 	- confused max index with number of elements in check
 	  for correct number of arguments for scale( 'limits' )
