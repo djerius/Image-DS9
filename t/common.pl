@@ -5,10 +5,10 @@ our $verbose = 0;
 sub start_up
 {
 
-  my $ds9 = Image::DS9->new( { verbose => $verbose });
+  my $ds9 = Image::DS9->new( { Server => 'ImageDS9', verbose => $verbose });
   unless ( $ds9->nservers )
   {
-    system( "ds9&" );
+    system( "ds9 -title ImageDS9 &" );
     $ds9->wait() or die( "unable to connect to DS9\n" );
   }
   
