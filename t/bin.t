@@ -21,7 +21,7 @@ test_stuff( $ds9, (
 		    cols => [ qw (rt_x rt_y ) ],
 		    factor => 0.050,
 		    depth => 1,
-		    filter => 'rt_time>0.5',
+		    filter => 'rt_time > 0.5',
 		    function => 'average',
 		    smooth => 1,
 		    [qw(smooth function)] => 'boxcar',

@@ -32,12 +32,14 @@ our @EXPORT =
      T_EPHEMERAL
      T_REWRITE
      T_STRING
+     T_STRING_STRIP
      T_STRING_NL
 
      BOOL
      FLOAT
      INT
      STRING
+     STRING_STRIP
      STRING_NL
      HASH
      PDL
@@ -116,6 +118,7 @@ use constant T_SEXAGESIMAL_DEC => 19;
 use constant T_REWRITE     => 20;
 use constant T_STRING_NL   => 21;	# trailing \n added on output if necessary
 use constant T_WCS_SCALARREF => 22;
+use constant T_STRING_STRIP => 23;	# strip blanks from string on set
 use constant T_ARRAY	   => 1024;
 use constant T_OTHER	   => 8192;
 
@@ -124,6 +127,7 @@ use constant BOOL	   => [ T_BOOL, qr/$TRUE|$FALSE/ ];
 use constant FLOAT	   => [ T_FLOAT, $FLOAT ];
 use constant INT	   => [ T_INT, qr/[+-]?\d+/ ];
 use constant STRING	   => [ T_STRING, sub { ! ref $_[0] } ];
+use constant STRING_STRIP  => [ T_STRING_STRIP, sub { ! ref $_[0] } ];
 use constant STRING_NL	   => [ T_STRING_NL, sub { ! ref $_[0] || 'SCALAR' eq ref $_[0] } ];
 use constant HASH	   => [ T_HASH, sub { 'HASH' eq ref $_[0] } ];
 use constant SCALARREF	   => [ T_SCALARREF, sub { ! ref $_[0] || 'SCALAR' eq ref $_[0] } ];
@@ -302,6 +306,13 @@ our %TypeCvt = (
 			  sub {
 			    $_[0] = \( ${$_[0]} . "\n" ) 
 			         unless substr(${$_[0]},-1,1) eq '\n';
+		            $_[0];
+                             }
+                         ],
+
+  	T_STRING_STRIP() => [
+			  sub {
+			    ${$_[0]} =~ s/\s+//g;
 		            $_[0];
                              }
                          ],

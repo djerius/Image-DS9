@@ -74,7 +74,7 @@ our %Grammar =
 
     [
      ['filter'],
-     { args => [ STRING ] }
+     { args => [ STRING_STRIP ] }
     ],
 
     [
@@ -334,7 +334,7 @@ our %Grammar =
      { args => [ STRING ], 
        attrs => [ new => BOOL,
 		  extname => STRING,
-		  filter => STRING,
+		  filter => STRING_STRIP,
 		  bin => ARRAY(1,2),
 		],
      }
@@ -352,7 +352,7 @@ our %Grammar =
      { args => [ SCALARREF ],
        attrs => [ new => BOOL,
 		  extname => STRING,
-		  filter => STRING,
+		  filter => STRING_STRIP,
 		  bin => ARRAY(1,2),
 		],
        query => QNONE,
@@ -368,7 +368,7 @@ our %Grammar =
      { args => [ SCALARREF ],
        attrs => [ new => BOOL,
 		  extname => STRING,
-		  filter => STRING,
+		  filter => STRING_STRIP,
 		  bin => ARRAY(1,2),
 		],
        query => QNONE,
@@ -429,7 +429,7 @@ our %Grammar =
      { args => [ SCALARREF ],
        attrs => [ new => BOOL,
 		  extname => STRING,
-		  filter => STRING,
+		  filter => STRING_STRIP,
 		  bin => ARRAY(1,2),
 		],
        query => QYES,
