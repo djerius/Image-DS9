@@ -23,17 +23,13 @@ use constant ON		=> 'on';
 use constant OFF	=> 'off';
 use constant YES	=> 'yes';
 use constant NO		=> 'no';
-use constant TRUE	=> 'true';
-use constant FALSE	=> 'false';
 
-our @extra_tags = qw( ON OFF YES NO TRUE FALSE );
+our @extra_tags = qw( ON OFF YES NO );
 
 our %bool = ( 0    , 0,
 	      1    , 1,
 	      YES  , 1,
 	      NO   , 0,
-	      TRUE , 1,
-	      FALSE, 0,
 	      ON   , 1,
 	      OFF  , 0 );
 
@@ -75,7 +71,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 use Carp;
 use Data::Dumper;
@@ -1694,8 +1690,6 @@ constants available for these:
 	OFF	=> 'off'
 	YES	=> 'yes'
 	NO	=> 'no'
-	TRUE	=> 'true'
-	FALSE	=> 'false'
 
 =head2 Return Values
 
@@ -2367,7 +2361,7 @@ does the trick.
 Finally, to indicate whether only the data section of the image is
 to be displayed, use C<S_datasec>, with a boolean value:
 
-	$dsp->scale( S_datasec, TRUE );
+	$dsp->scale( S_datasec, ON );
         $datasec = $dsp->scale( S_datasec );
 
 
