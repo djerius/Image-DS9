@@ -3,20 +3,17 @@ use warnings;
 
 use Test::More;
 
-
-BEGIN {
-  eval 'use PDL';
-  if ( $@ )
-  {
-    diag( $@ );
-    plan( skip_all => 'No PDL; skipping' );
-  }
-  else
-  {
-    plan( tests => 2 )	
-  }
-}
 use Image::DS9;
+
+unless ( $Image::DS9::use_PDL )
+{
+  plan( skip_all => 'No PDL; skipping' );
+}
+else
+{
+  eval 'use PDL';
+  plan( tests => 2 );
+}
 
 require 't/common.pl';
 
