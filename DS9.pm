@@ -7,6 +7,9 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $use_PDL);
 BEGIN {
   eval "use PDL::Types; use PDL::Core"; 
   $use_PDL = $@ ? 0 : 1;
+  use vars qw( @ops );
+  @ops = qw( @frame_ops @display_ops @tile_ops @extra_ops
+	   @filetype_ops @scale_ops @mode_ops @orient_ops );
 }
 
 
@@ -16,34 +19,50 @@ require Exporter;
 
 @EXPORT = qw( );
 
-my @frame_ops = qw( 
+use vars @ops, map { "${_}_dbg" } @ops;
+
+@frame_ops = qw( 
+		   FR_active
+		   FR_all
 		   FR_center
 		   FR_clear
 		   FR_delete
-		   FR_hide
-		   FR_new
-		   FR_refresh
-		   FR_reset
 		   FR_first
+		   FR_hide
+		   FR_last
+		   FR_new
 		   FR_next
 		   FR_prev
-		   FR_last
+		   FR_refresh
+		   FR_reset
+		   FR_show
 		  );
 
-my @display_ops = qw( D_blink D_tile D_single );
+@display_ops = qw( D_blink D_tile D_single );
 
-my @tile_ops  = qw( T_Grid T_Column T_Row );
+@tile_ops  = qw( T_Grid T_Column T_Row );
 
-my @extra_ops = qw( ON OFF YES NO );
+@extra_ops = qw( ON OFF YES NO );
 
-my @filetype_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
+@filetype_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
 
-my @scale_ops = qw( S_linear S_ln S_log S_squared 
-		    S_sqrt S_minmax S_zscale S_user S_local S_global );
+@scale_ops = qw( S_linear S_log S_squared S_sqrt S_minmax S_zscale
+		 S_user S_local S_global S_limits S_mode S_scope );
 
+@mode_ops = qw( MB_pointer MB_crosshair MB_colorbar MB_pan
+		MB_zoom MB_rotate MB_examine );
 
-@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @filetype_ops, 
-	       @display_ops, @scale_ops );
+@orient_ops = qw( OR_X OR_Y OR_XY );
+
+use vars qw( @all_ops );
+
+eval "push \@all_ops, $_" foreach @ops;
+
+for my $op ( @ops )
+{
+  eval "push ${op}_dbg, eval \$_ foreach ( ${op} )";
+}
+
 
 %EXPORT_TAGS = ( 
 		frame => \@frame_ops,
@@ -51,8 +70,13 @@ my @scale_ops = qw( S_linear S_ln S_log S_squared
 		filetype => \@filetype_ops,
 		display => \@display_ops,
 		scale => \@scale_ops,
-		all => [ @EXPORT_OK ],
+		mode => \@mode_ops,
+		orient => \@orient_ops,
+		all => \@all_ops,
 	       );
+
+Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
+
 $VERSION = '0.08';
 
 use Carp;
@@ -60,7 +84,6 @@ use Data::Dumper;
 use IPC::XPA;
 use constant SERVER => 'ds9';
 use constant CLASS => 'Image::DS9';
-
 
 use constant ON		=> 1;
 use constant OFF	=> 0;
@@ -84,7 +107,8 @@ sub _flatten_hash
 
   my %def_obj_attrs = ( Server => SERVER, 
 			min_servers => 1,
-			res_wanthash => 1
+			res_wanthash => 1,
+			verbose => 0
 		      );
   my %def_xpa_attrs = ( max_servers => 1 );
 
@@ -105,7 +129,6 @@ sub _flatten_hash
     
     croak( CLASS, "->new -- error creating XPA object" )
       unless defined $self->{xpa};
-
     
     $self->{xpa_attrs}{max_servers} = $self->nservers || 1;
 
@@ -205,17 +228,17 @@ sub display
     my %single;
     my %tile;
 
-    my $attrs = { chomp => 1 };
+    my $attrs = { chomp => 1, res_wanthash => 1 };
 
     # catch all of the exceptions and work around them
     # so as to get maximum data back to caller
-    eval { %blink  = $self->Get( 'blink', 1, $attrs )  };
+    eval { %blink  = $self->Get( 'blink', $attrs )  };
     %blink = $self->res if $@;
 
-    eval { %single = $self->Get( 'single', 1, $attrs ) };
+    eval { %single = $self->Get( 'single', $attrs ) };
     %single = $self->res if $@;
 
-    eval { %tile   = $self->Get( 'tile', 1, $attrs )   };
+    eval { %tile   = $self->Get( 'tile', $attrs )   };
     %tile = $self->res if $@;
     
     # create union of server list
@@ -273,7 +296,7 @@ sub display
       croak( CLASS, '->display -- error obtaining status' );
     }
 
-    if ( 1 == $self->{xpa_attrs}{max_servers} && ! $self->{res_wanthash} )
+    unless ( wantarray() )
     {
       my ( $server ) = keys %results;
       return $results{$server}{buf};
@@ -305,7 +328,8 @@ sub tile_mode
 
   unless ( defined $state )
   {
-    return $self->Get( 'tile mode', { chomp => 1 } );
+    return $self->Get( 'tile mode', 
+		     { chomp => 1, res_wanthash => wantarray() } );
   }
 
   else
@@ -321,7 +345,8 @@ sub colormap
 
   unless ( defined $colormap )
   {
-    return $self->Get( 'colormap', { chomp => 1 } );
+    return $self->Get( 'colormap', 
+		     { chomp => 1, res_wanthash => wantarray() } );
   }
 
   else
@@ -330,17 +355,36 @@ sub colormap
   }
 }
 
+sub iconify
+{
+  my ( $self, $state ) = @_;
+
+  unless ( defined $state )
+  {
+    return $self->Get( 'iconify', 
+		     { chomp => 1, res_wanthash => wantarray() } );
+  }
+
+  else
+  {
+    $self->Set( "iconify " . bool2str(str2bool($state)) );
+  }
+}
+
+use constant FR_active	=> 'active';
+use constant FR_all	=> 'all';
 use constant FR_center  => 'center';
-use constant FR_clear	 => 'clear';
+use constant FR_clear	=> 'clear';
 use constant FR_delete  => 'delete';
+use constant FR_first	=> 'first';
 use constant FR_hide    => 'hide';
+use constant FR_last	=> 'last';
 use constant FR_new     => 'new';
+use constant FR_next	=> 'next';
+use constant FR_prev	=> 'prev';
 use constant FR_refresh => 'refresh';
 use constant FR_reset   => 'reset';
-use constant FR_first	 => 'first';
-use constant FR_next	 => 'next';
-use constant FR_prev	 => 'prev';
-use constant FR_last	 => 'last';
+use constant FR_show	=> 'show';
 
 sub frame
 {
@@ -349,13 +393,22 @@ sub frame
 
   unless( defined $cmd )
   {
-    return $self->Get( 'frame', { chomp => 1 } );
+    return $self->Get( 'frame', 
+		     { chomp => 1, res_wanthash => wantarray() } );
   }
 
   elsif ( 'show' eq $cmd )
   {
     my $frame = shift;
+    croak( CLASS, '->frame -- too few arguments' )
+      unless defined $frame;
     $self->Set( "frame show $frame" );
+  }
+
+  elsif ( 'delete' eq $cmd )
+  {
+    my $frame = shift || '';
+    $self->Set( "frame delete $frame" );
   }
 
   else
@@ -379,7 +432,8 @@ sub file
 
   unless( defined $file )
   {
-    return $self->Get( 'file', { chomp => 1 } );
+    return $self->Get( 'file',
+		     { chomp => 1, res_wanthash => wantarray() } );
   }
 
   else
@@ -391,8 +445,87 @@ sub file
 
 }
 
+use constant MB_pointer		=> 'pointer';
+use constant MB_crosshair	=> 'crosshair';
+use constant MB_colorbar	=> 'colorbar';
+use constant MB_pan		=> 'pan';
+use constant MB_zoom		=> 'zoom';
+use constant MB_rotate		=> 'rotate';
+use constant MB_examine		=> 'examine';
+
+sub mode
+{
+  my ( $self, $state ) = @_;
+
+  unless ( defined $state )
+  {
+    return $self->Get( 'mode', 
+		     { chomp => 1, res_wanthash => wantarray() } );
+  }
+
+  else
+  {
+    $self->Set( "mode $state" );
+  }
+}
+
+
+use constant OR_X	=> 'x';
+use constant OR_Y	=> 'y';
+use constant OR_XY	=> 'xy';
+
+sub orient
+{
+  my ( $self, $state ) = @_;
+
+  unless ( defined $state )
+  {
+    return $self->Get( 'orient', 
+		     { chomp => 1, res_wanthash => wantarray() } );
+  }
+
+  else
+  {
+    $self->Set( "orient $state" );
+  }
+}
+
+sub rotate
+{
+  my $self = shift;
+  my $what = shift;
+
+  unless ( defined $what )
+  {
+    return $self->Get( 'rotate', 
+		     { chomp => 1, res_wanthash => wantarray() } );
+  }
+
+  elsif ( 'abs' eq $what )
+  {
+    $what = shift;
+    croak( CLASS, "->rotate: not enough arguments\n" )
+      unless defined $what;
+    $self->Set( "rotate to $what" );
+  }
+
+  elsif ( 'rel' eq $what )
+  {
+    $what = shift;
+    croak( CLASS, "->rotate: not enough arguments\n" )
+      unless defined $what;
+    $self->Set( "rotate $what" );
+  }
+
+  else
+  {
+    croak( CLASS, "->rotate: too many arguments\n" )
+      if @_;
+    $self->Set( "rotate $what" );
+  }
+}
+
 use constant S_linear	=> 'linear';
-use constant S_ln	=> 'ln';
 use constant S_log	=> 'log';
 use constant S_squared	=> 'squared';
 use constant S_sqrt	=> 'sqrt';
@@ -401,41 +534,74 @@ use constant S_zscale	=> 'zscale';
 use constant S_user	=> 'user';
 use constant S_local	=> 'local';
 use constant S_global	=> 'global';
+use constant S_limits	=> 'limits';
+use constant S_mode	=> 'mode';
+use constant S_scope	=> 'scope';
 
-my @scale_scopes = ( S_local, S_global );
-my @scale_modes = ( S_minmax, S_zscale, S_user );
-my @scale_algs = ( S_linear, S_ln, S_log, S_squared, S_sqrt );
+use vars qw( @scale_scopes @scale_modes @scale_algs );
+@scale_scopes = ( S_local, S_global );
+@scale_modes = ( S_minmax, S_zscale, S_user );
+@scale_algs = ( S_linear, S_log, S_squared, S_sqrt );
 
 sub scale
 {
   my $self = shift;
   my $what = shift;
 
-  if ( 'scope' eq $what )
+  unless ( defined $what )
   {
-    my $scope = shift;
-    grep { $_ eq $scope } @scale_scopes
-      or croak( "unknown scale scope value" );
-
-    $self->Set( "scale scope $scope" );
+    return $self->Get( 'scale', 
+		     { chomp => 1, res_wanthash => wantarray() } );
   }
+
+  elsif ( 'scope' eq $what )
+  {
+    my $what = shift;
+
+    unless ( defined $what )
+    {
+      return $self->Get( 'scale scope', 
+		       { chomp => 1, res_wanthash => wantarray() } );
+    }
+
+    grep { $_ eq $what } @scale_scopes
+      or croak( "unknown scale scope value: `$what'" );
+
+    $self->Set( "scale scope $what" );
+  }
+
   elsif ( 'limits' eq $what )
   {
-    my $minmax = shift;
-    croak ( 'expected array ref for scale limit value' )
-      unless 'ARRAY' eq ref($minmax);
-    croak ( 'not enough values for scale limits' )
-      unless $#{$minmax} >= 2;
+    my $what = shift;
 
-    $self->Set( "scale limits $minmax->[0] $minmax->[1]" );
+    unless ( defined $what )
+    {
+      return $self->Get( 'scale limits', 
+		       { chomp => 1, res_wanthash => wantarray() } );
+    }
+
+    croak ( 'expected array ref for scale limit value' )
+      unless 'ARRAY' eq ref($what);
+    croak ( 'not enough values for scale limits' )
+      unless $#{$what} >= 2;
+
+    $self->Set( "scale limits $what->[0] $what->[1]" );
   }
+
   elsif( 'mode' eq $what )
   {
-    my $mode = shift;
-    grep { $_ eq $mode } @scale_modes
-      or croak( "unknown scale mode value" );
+    my $what = shift;
 
-    $self->Set( "scale mode $mode" );
+    unless ( defined $what )
+    {
+      return $self->Get( 'scale mode', 
+		       { chomp => 1, res_wanthash => wantarray() } );
+    }
+
+    grep { $_ eq $what } @scale_modes
+      or croak( "unknown scale mode value: `$what'" );
+
+    $self->Set( "scale mode $what" );
   }
   else
   {
@@ -450,20 +616,37 @@ sub zoom
   my $self = shift;
   my $what = shift;
 
-  if ( 'abs' eq $what )
+  unless ( defined $what )
   {
+    return $self->Get( 'zoom', 
+		     { chomp => 1, res_wanthash => wantarray() } );
+  }
+
+  elsif ( 'abs' eq $what )
+  {
+    $what = shift;
+    croak( CLASS, "->zoom: not enough arguments\n" )
+      unless defined $what;
     $self->Set( "zoom to $what" );
   }
+
   elsif ( 'rel' eq $what )
   {
+    $what = shift;
+    croak( CLASS, "->zoom: not enough arguments\n" )
+      unless defined $what;
     $self->Set( "zoom $what" );
   }
+
   elsif ( 0 == $what )
   {
     $self->Set( "zoom to fit" );
   }
+
   else
   {
+    croak( CLASS, "->zoom: too many arguments\n" )
+      if @_;
     $self->Set( "zoom to $what" );
   }
 }
@@ -471,6 +654,9 @@ sub zoom
 sub Set
 {
   my ( $self, $cmd, $buf ) = @_;
+
+  print STDERR ( CLASS, "->Set: $cmd\n" )
+    if $self->{verbose};
 
   my %res = $self->{xpa}->Set( $self->{Server}, $cmd, $buf, 
 					    $self->{xpa_attrs} );
@@ -497,15 +683,15 @@ sub Set
 
 sub Get
 {
-  my ( $self, $cmd, @stuff ) = @_;
+  my ( $self, $cmd, $attr ) = @_;
 
-  my $attr = pop @stuff if 'HASH' eq ref $stuff[$#stuff];
-
-  my $res_wanthash = unshift @stuff;
+  print STDERR ( CLASS, "->Get: $cmd\n" )
+    if $self->{verbose};
 
   my %attr = ( $attr ? %$attr : () );
 
-  $res_wanthash = $self->{res_wanthash} unless defined $res_wanthash;
+  $attr{res_wanthash} = $self->{res_wanthash} 
+    unless defined $attr{res_wanthash};
 
   my %res = $self->{xpa}->Get( $self->{Server}, $cmd, 
 			       $self->{xpa_attrs} );
@@ -530,7 +716,7 @@ sub Get
 	   " servers(s) responded" )
   }
 
-  if ( 1 == $self->{xpa_attrs}{max_servers} && ! $res_wanthash )
+  unless ( $attr{res_wanthash} )
   {
     my ( $server ) = keys %res;
     return $res{$server}->{buf};
@@ -543,6 +729,18 @@ sub Get
 }
 
 
+sub str2bool
+{
+  my $string = lc shift;
+
+  $string eq 'yes' or $string eq 'on' or $string eq '1';
+}
+
+sub bool2str
+{
+  my $bool = shift;
+  $bool ? 'yes' : 'no';
+}
 
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
@@ -558,27 +756,11 @@ Image::DS9 - interface to the DS9 image display and analysis program
 =head1 SYNOPSIS
 
   use Image::DS9;
-  use Image::DS9 qw( :frame :tile :filetype );
-  use Image::DS9 qw( :all );
+  use Image::DS9 qw( :<group> );  # import constants from group <group>
+  use Image::DS9 qw( :all );	  # import all constants
 
   $dsp = new Image::DS9;
   $dsp = new Image::DS9( \%attrs );
-
-  $nservers = $dsp->nservers;
-
-  $dsp->array( $image );
-  $dsp->array( $image, \%attrs );
-
-  $dsp->colormap( $colormap );
-  @colormaps = $dsp->colormap;
-
-  $dsp->display( $display_type );
-  @display = $dsp->display;
-
-  $dsp->frame( $frame_op );
-  @frames = $dsp->frame;
-
-  $last_results = $dsp->res;
 
 =head1 DESCRIPTION
 
@@ -605,24 +787,41 @@ spelling out how to do this.
 
 =head2 Constants
 
+Commands sent to DS9 are sent as strings.  To prevent typos (and other
+unwanted sideeffects) B<Image::DS9> makes many of the commands and
+subcommands available as Perl constants -- mistype these and the
+compiler will complain, not B<DS9>.
+
 Predefined constants may be imported when the B<Image::DS9> package
 is loaded, by specifying one or more of the following tags:
-C<frame>, C<tile>, C<filetype>, C<all>.  For example:
+C<frame>,
+C<tile>,
+C<filetype>,
+C<display>,
+C<scale>,
+C<mode_ops>,
+C<orient_ops>,
+or C<all>.
+
+For example:
 
 	use Image::DS9 qw( :frame :tile :filetype :display );
 
 The C<frame> group imports
+C<FR_active>,
+C<FR_all>,
 C<FR_center>,
 C<FR_clear>,
 C<FR_delete>,
-C<FR_hide>,
-C<FR_new>,
-C<FR_refresh>,
-C<FR_reset>,
 C<FR_first>,
+C<FR_hide>,
+C<FR_last>,
+C<FR_new>,
 C<FR_next>,
 C<FR_prev>,
-C<FR_last>.
+C<FR_refresh>,
+C<FR_reset>,
+C<FR_show>.
 
 The C<tile> group imports
 C<T_Grid>,
@@ -642,7 +841,6 @@ C<D_single>.
 
 The C<scale> group imports
 C<S_linear>,
-C<S_ln>,
 C<S_log>,
 C<S_squared>,
 C<S_sqrt>,
@@ -650,14 +848,35 @@ C<S_minmax>,
 C<S_zscale>,
 C<S_user>,
 C<S_local>,
-C<S_global>.
+C<S_global>,
+C<S_limits>,
+C<S_mode>,
+C<S_scope>.
 
+The C<mode_ops> group imports
+C<MB_pointer>,
+C<MB_crosshair>,
+C<MB_colorbar>,
+C<MB_pan>,
+C<MB_zoom>,
+C<MB_rotate>,
+C<MB_examine>.
+
+The C<orient-ops> group imports
+C<OR_X>,
+C<OR_Y>,
+C<OR_XY>.
 
 The C<all> group imports all of the above groups, as well as
 C<ON>,
 C<OFF>,
 C<YES>
 C<NO>.
+
+=head2 Boolean values
+
+Some methods take boolean values; these may be the strings C<on>, C<off>,
+C<yes>, C<no>, or the integers C<1> or C<0>.
 
 
 =head2 Return values
@@ -685,18 +904,17 @@ yields
 	          }
 	        };
 
-If you know that there is only one server out there (for example,
-if the object was created with B<max_servers> set to 1, you can
-set the object's B<ref_wanthash> attribute to zero.  In that case,
-if there is only one server, it will return the 
-data directly, i.e.
+If you know that there is only one server out there  (for example,
+if the object was created with B<max_servers> set to 1), you can
+call a method in a scalar environment, and it will directly return
+the value:
 
 	$colormap = $dsp->colormap;
 
-Note that if B<max_servers> is greater than zero, playing with
-B<ref_wanthash> doesn't do anything.
+If there is more than one server, you'll get the results for a randomly
+chosen server.
 
-Some methods do not normally return anything, for example
+Sending data usually doesn't result in a return:
 
 	$dsp->colormap( 'Grey' );
 
@@ -742,12 +960,6 @@ called.
 The minimum number of servers which should respond to commands.  If
 a response is not received from at least this many servers, an exception
 will be thrown.  It defaults to C<1>.
-
-=item res_wanthash
-
-If non-zero (the default) this indicates that results are returned
-as a reference to a hash.  If this has a value of zero, and B<max_servers> is 
-C<1>, the results are returned directly (see L<Return values>).
 
 =back
 
@@ -819,7 +1031,7 @@ are returned (see L<Return values> for the format).  The state is
 will be returned as a string equivalent to the constants C<D_blink>,
 C<D_tile> or C<D_single>.  For instance:
 
-  my $ds9 = new DS9( { max_servers => 1, res_wanthash => 0 } );
+  my $ds9 = new DS9( { max_servers => 1 } );
 
   print "We're blinking!\n" if D_blink eq $ds9->display;
 
@@ -842,9 +1054,22 @@ for the current frame.
 
 =item frame
 
-  $dsp->frame( $frame_op );
-  $dsp->frame( show => $frame );
   @frames = $dsp->frame;
+
+  # perform a frame operation with no arguments
+  $dsp->frame( $frame_op );
+
+  # show the specified frame
+  $dsp->frame( show => $frame );
+
+  # delete the current frame
+  $dsp->frame( FR_delete );
+    
+  # delete the specified frame
+  $dsp->frame( delete => $frame );
+
+  # delete all of the frames
+  $dsp->frame( delete => FR_all );
 
 Command B<DS9> to do frame operations.  Frame operations are nominally
 strings.  As B<DS9> will interpret any string which isn't a frame operation
@@ -852,6 +1077,8 @@ as the name of frame to switch to (or create, if necessary), B<Image::DS9>
 provides constants for the standard operations to prevent typos.  See
 the L<Constants> section.
 Otherwise, use the strings 
+C<active>,
+C<all>,
 C<center>,
 C<clear>,
 C<delete>,
@@ -859,6 +1086,7 @@ C<hide>,
 C<new>,
 C<refresh>,
 C<reset>,
+C<show>,
 C<first>,
 C<next>,
 C<prev>,
@@ -881,6 +1109,48 @@ For example,
 If B<frame()> is called with no arguments, it returns a list of the
 current frames for all instances of B<DS9>.
 
+=item iconify
+
+  $iconify_state = $dsp->iconify;
+  %iconify_state = $dsp->iconify;
+  $dsp->iconify($bool);
+
+With a boolean argument, specify the iconification state, else
+return it.
+
+=item mode
+
+  $mode = $dsp->mode;
+  $dsp->mode( $state );
+
+Change (or query) the first mouse button mode state.  Predefined
+states are available via the C<mode_ops> group; see the L<Constants>
+section.
+
+=item orient
+
+  $state = $dsp->orient;
+  $dsp->orient( $state );
+
+Change (or query) the orientation of the current frame. Predefined
+states are available via the C<orient_ops> group; see the L<Constants>
+section.
+
+=item rotate
+
+  $rotate = $dsp->rotate;
+  $dsp->rotate( abs => $rotate );
+  $dsp->rotate( rel => $rotate );
+  $dsp->rotate( $rotate );
+
+Change or query the rotation angle (in degrees) for the current frame.
+A rotatation may be absolute or relative; this is explicitly specified
+in the second and third forms of the method invocation.  If not
+specified (as in the last form) it is relative.
+
+If no argument is specified, it returns the rotatation angle for the current
+frame.
+
 =item res
 
   $res = $dsp->res;
@@ -895,20 +1165,23 @@ the hashes contain.
 =item scale
 
   $dsp->scale( $algorithm );
-  $dsp->scale( limits => [ $min, $max ] );
-  $dsp->scale( mode => $mode );
-  $dsp->scale( scope => $scope );
+  $dsp->scale( S_limits => [ $min, $max ] );
+  $dsp->scale( S_mode => $mode );
+  $dsp->scale( S_scope => $scope );
+
+  %scale = $dsp->scale;
+  %limits = $dsp->scale( S_limits );
+  %mode = $dsp->scale( S_mode );
+  %scope = $dsp->scale( S_scope );
 
 This specifies how the data will be scaled.  C<$algorithm> may
 be one of the constants 
 C<S_linear>,
-C<S_ln>,
 C<S_log>,
 C<S_squared>,
 C<S_sqrt>
 (or, equivalently, 
 C<'linear'>,
-C<'ln'>,
 C<'log'>,
 C<'squared'>,
 C<'sqrt'>).
@@ -930,7 +1203,9 @@ C<'local'>,
 C<'global'>
 ).
 
-The constants are available if the C<scale> tag is imported.
+The constants are available if the C<scale> tag is imported (see
+L<Constants>).  The second set of invocations shown above illustrates
+how to determine the current values of the scale parameters.
 
 =item tile_mode
 
@@ -944,6 +1219,7 @@ current tiling mode.
 
 =item zoom
 
+  $zoom = $dsp->zoom;
   $dsp->zoom( abs => $zoom );
   $dsp->zoom( rel => $zoom );
   $dsp->zoom( $zoom );
@@ -951,10 +1227,12 @@ current tiling mode.
 This changes the zoom value for the current frame.  C<$zoom> is a
 positive numerical value.  A zoom value may be absolute or relative.
 This is explicitly specified in the second and third forms of the
-method invocation.  If not specified (as in the third form)
+method invocation.  If not specified (as in the last form)
 it is absolute.  To zoom such that the image fits with in the frame,
 specify a zoom value of C<0>.
 
+If no argument is specified, it returns the zoom value for the current
+frame.
 
 =back
 
