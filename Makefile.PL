@@ -4,4 +4,6 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Image::DS9',
     'VERSION_FROM' => 'DS9.pm', # finds $VERSION
+    'PREREQ_PM' => { IPC::XPA => 0,
+		   },
 );

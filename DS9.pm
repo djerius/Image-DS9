@@ -116,8 +116,6 @@ sub res
 
   if ( $use_PDL )
   {
-    # if PDL isn't there, this'll cause compile time errors
-    eval q{
     %map = (
 	    $PDL::Types::PDL_B => 8,
 	    $PDL::Types::PDL_S => 16,
@@ -125,7 +123,7 @@ sub res
 	    $PDL::Types::PDL_L => 32,
 	    $PDL::Types::PDL_F => -32,
 	    $PDL::Types::PDL_D => -64
-	   );}
+	   );
   }
 
   my %def_attrs = ( xdim => undef,
