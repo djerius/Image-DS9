@@ -16,7 +16,7 @@ $ds9->file( cwd. '/m31.fits.gz');
 eval {
   $ds9->cursor( 1,1 );
 };
-print STDERR $@ if $@;
+diag $@ if $@;
 ok ( ! $@, "cursor" );
 
 

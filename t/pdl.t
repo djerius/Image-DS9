@@ -3,18 +3,20 @@ use warnings;
 
 use Test::More;
 
-use Image::DS9;
 
-eval 'use PDL';
-if ( $@ )
-{
-  diag( $@ );
-  plan( skip_all => 'No PDL; skipping' );
+BEGIN {
+  eval 'use PDL';
+  if ( $@ )
+  {
+    diag( $@ );
+    plan( skip_all => 'No PDL; skipping' );
+  }
+  else
+  {
+    plan( tests => 2 )	
+  }
 }
-else
-{
-  plan( tests => 2 )	
-}
+use Image::DS9;
 
 require 't/common.pl';
 
@@ -25,7 +27,7 @@ my $x = zeroes(20,20)->rvals;
 eval {
   $ds9->array($x);
 };
-
+diag $@ if $@;
 ok( ! $@, "PDL array" );
   
 my $p = $x->get_dataref;

@@ -33,6 +33,6 @@ $ds9->grid(0);
 eval {
   $ds9->grid( load => cwd() . '/snooker.grid' );
 };
-print $@ if $@;
+diag $@ if $@;
 ok(!$@, 'grid load' );
 unlink 'snooker.grid';

@@ -5,7 +5,7 @@ use warnings;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $use_PDL);
 
 BEGIN {
-  eval "use PDL::Types; use PDL::Core"; 
+  eval "use PDL::Core; use PDL::Types;"; 
   $use_PDL = $@ ? 0 : 1;
 }
 

@@ -14,4 +14,5 @@ my $ds9 = start_up();
 eval {
   $ds9->lower();
 };
+diag $@ if $@;
 ok ( ! $@, 'version' );

@@ -24,7 +24,7 @@ eval {
   close FITS;
 };
 
-print STDERR $@ if $@;
+diag $@ if $@;
 ok( !$@, "fits image gz get" );
 
 eval {
@@ -35,8 +35,7 @@ eval {
   close FILE;
   $ds9->fits( $fitsimg, { new => 1 } );
 };
-
-print $@ if $@;
+diag $@ if $@;
 ok( !$@, "fits image gz set" );
 
 unlink $imgfile;
