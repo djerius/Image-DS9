@@ -8,12 +8,12 @@ use PDL::Core qw( zeroes double );
 use Image::DS9 qw( :all );
 
 
-my $dsp = new Image::DS9 { verbose => 1 };
+my $dsp = new Image::DS9 { Server => 'ds9_test' };
 
 # only load DS9 if it's not already there...
 unless ( $dsp->nservers )
 {
-  system( 'ds9 -geometry 1040x680 &' );
+  system( 'ds9 -title ds9_test -geometry 1040x680 &' );
 
   $dsp->wait() or
     die( "unable to connect to ds9\n" );
