@@ -13,7 +13,10 @@ Tests:
  web
 
 
+Problems:
 
+- ARRAY types are not checked for length on query.
+- 
 
 
 

@@ -1,5 +1,14 @@
 Revision history for Perl extension Image::DS9.
 
+0.18  Mon Sep 30 20:37:37 EDT 2002
+        - added ResErrXXX options
+	- fixed contour save/load grammar
+	- bin cols could return 3 values; kludge that in
+	- sometimes? when DESTROY'ing object would have undefined xpa
+	  object.  why?? now checks for that.
+	- error message clean up in Parser
+	- now accepts colormap as an alias for cmap.
+
 0.17  Wed Sep 25 17:00:03 EDT 2002
         - added Image::DS9::Constants
 	- revamped test suite
