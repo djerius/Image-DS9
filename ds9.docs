@@ -1,0 +1,110 @@
+about:	-- get credits
+
+analysis:	[task number]
+
+array:	[xdim=<x>,ydim=<y>,bitpix=<b>,skip=<s>]
+
+blink:	[yes|no]
+
+blocking:	for SAOtng backward compatibility
+
+block:	[buffersize <value>]
+       [factor <value>]
+       [function average|sum]
+       [to fit]
+
+colormap:	[<colormap>]
+          [invert yes|no]
+
+contour:	[yes|no] | [copy|paste <coordinate system>]
+
+crosshair:	[x y <coordinate system>]
+
+cursor:	[x y] -- move pointer or crosshair
+
+exit:	-- exit application
+
+file:	[<filename>]
+      [mosaicimage <filename>]
+      [mosaicimages <filename>]
+      [mosaic <filename>]
+
+fits:	[<options>]
+
+frame:	[center|clear|delete|new|reset|refresh|frameno #|#]
+
+grid:	[yes|no]
+
+iconify:	[yes|no]
+
+mode:	[pointer|crosshair|colorbar|pan|zoom|rotate|examine] -- cursor commands
+
+mosaicimage:	[<options>]
+
+orient:	[none|X|Y|XY] -- orient current frame
+
+page setup:	[orientation portrait|landscape]
+            [pagescale scaled|fixed]
+            [pagesize letter|legal|a4] -- print page setup
+
+pan:	[x y <corrdinate system>]
+     [to x y <corrdinate system>]
+
+print:	[destination printer|file]
+       [command <command>]
+       [filename <filename>]
+       [palette rgb|cmyk|gray]
+       [level 1|2]
+       [interpolate yes|no]
+       [resolution 53|72|75|150|300|600]
+
+quit:	-- exit application
+
+regions:	[movefront]
+        [moveback]
+        [selectall]
+        [selectnone]
+        [deleteall]
+        [file <regions file>]
+        [format ds9|saotng|saoimage|pros]
+        [coord <coordinate system>]
+        [coordformat degree|sexagesimal]
+        <region commands>
+
+rotate:	[<value>]
+        [to <value>]
+
+scale:	[linear|log|squared|sqrt]
+       [limits <minvalue> <maxvalue>]
+       [mode][minmax|zscale|user]
+       [scope][local|global] -- color scale distribution
+
+source:	[filename] -- source tcl source code
+
+tcl:	[<tcl command>] -- execute tcl command
+
+tile:	[yes|no]
+      [mode grid|row|column]
+
+version:	-- display version
+
+view:	[info yes|no]
+      [panner yes|no]
+      [magnifier yes|no]
+      [buttons yes|no]
+      [colorbar yes|no]
+      [horzgraph yes|no]
+      [vertgraph yes|no]
+      [wcs yes|no]
+      [detector yes|no]
+      [amplifier yes|no]
+      [physical yes|no]
+      [image yes|no] -- enable/disable gui display
+
+wcs:	[fk4|fk5|galactic|ecliptic]
+     [align yes|no]
+     [format degrees|sexagesimal]
+
+zoom:	[<value>]
+      [to fit]
+      [to <value>]
