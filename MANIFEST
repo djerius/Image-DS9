@@ -1,7 +1,10 @@
+CONTRIB
 Changes
 DS9.pm
 LICENSE
 MANIFEST
 Makefile.PL
 README
+t/frames.t
+t/tile_mode.t
 test.pl

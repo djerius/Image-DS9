@@ -1,5 +1,10 @@
 Revision history for Perl extension Image::DS9.
 
+0.11  Thu Oct 11 17:35:35 EDT 2001
+        - frame hide now takes an argument (so can do hide all)
+	- frame all implemented so can get list of all frames
+	- updated tile_mode so that one can set/get the grid mode attributes.
+
 0.106
 	- more aggressive cleaning of WCS keywords
 

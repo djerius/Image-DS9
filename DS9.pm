@@ -62,14 +62,12 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.106';
+$VERSION = '0.11';
 
 use Carp;
 use Data::Dumper;
 use IPC::XPA;
 use constant SERVER => 'ds9';
-#use constant CLASS => 'Image::DS9';
-
 
 
 #####################################################################
@@ -619,6 +617,28 @@ sub frame
 		     { chomp => 1, res_wanthash => wantarray() } );
   }
 
+  elsif ( FR_all eq $cmd )
+  {
+      my %results = $self->_Get( "frame all", 
+			      { chomp => 1, res_wanthash => 1 } );
+
+      for my $res ( values %results )
+      {
+	$res->{buf} = [ split( / /, $res->{buf} ) ];
+      }
+
+      unless ( wantarray() )
+      {
+	my ( $server ) = keys %results;
+	return $results{$server}{buf};
+      }
+      
+      else
+      {
+	return %results;
+      }
+  }
+
   elsif ( FR_show eq $cmd )
   {
     my $frame = shift;
@@ -627,9 +647,23 @@ sub frame
     $self->Set( "frame show $frame" );
   }
 
+  elsif ( FR_hide eq $cmd )
+  {
+    my $frame = shift || '';
+
+    croak( __PACKAGE__, '->frame: too many arguments' )
+      if @_;
+
+    $self->Set( "frame hide $frame" );
+  }
+
   elsif ( FR_delete eq $cmd )
   {
     my $frame = shift || '';
+
+    croak( __PACKAGE__, '->frame: too many arguments' )
+      if @_;
+
     $self->Set( "frame delete $frame" );
   }
 
@@ -1099,16 +1133,31 @@ BEGIN
 use constant T_grid	 => 'grid';
 use constant T_column	 => 'column';
 use constant T_row	 => 'row';
+use constant T_gap	 => 'gap';
+use constant T_layout	 => 'layout';
+use constant T_mode	 => 'mode';
+use constant T_auto	 => 'automatic';
+use constant T_manual	 => 'manual';
+
 
 BEGIN 
 { 
-  my @symbols  = qw( T_grid T_column T_row );
+  my @symbols  = qw(
+		    T_grid T_column T_row T_gap T_layout T_mode T_auto T_manual
+		   );
   $EXPORT_TAGS{tile} = \@symbols;
-  my %State = map { $_, 1 } ( T_grid, T_column,	T_row );
+
+  # the number of arguments for grid parameters
+  my %Mode = (
+	      T_mode,   1,
+	      T_layout, 2,
+	      T_gap,    1
+	     );
   
   sub tile_mode
   {
-    my ( $self, $state ) = @_;
+    my $self  = shift;
+    my $state = shift;
     
     unless ( defined $state )
     {
@@ -1116,14 +1165,76 @@ BEGIN
 			{ chomp => 1, res_wanthash => wantarray() } );
     }
     
-    else
+    elsif ( T_column eq $state || T_row eq $state )
     {
-      croak( __PACKAGE__, "->tile_mode: unknown mode `$state'\n" )
-	unless exists $State{$state};
-
       $self->Set( "tile mode $state" );
     }
     
+    elsif ( T_grid eq $state )
+    {
+      my $what = shift;
+      
+      unless ( defined $what )
+      {
+	$self->Set( "tile mode $state" );
+	return;
+      }
+
+      croak( __PACKAGE__,
+	     "->tile_mode: unknown $state modifier `$what'\n" )
+	unless defined $Mode{$what};
+
+      # want current state for $state $what
+      if ( 0 == @_ )
+      {
+	my %results = $self->_Get( "tile $state $what",
+				 { chomp => 1, res_wanthash => 1 } );
+	
+	for my $res ( values %results )
+	{
+	  $res->{buf} = [ split( / /, $res->{buf} ) ]
+	    if $Mode{$what} > 1;
+	}
+	
+	unless ( wantarray() )
+	{
+	  my ( $server ) = keys %results;
+	  return $results{$server}{buf};
+	}
+	
+	else
+	{
+	  return %results;
+	}
+      }
+
+      # else, want to set it
+
+      croak( __PACKAGE__, 
+	     "->tile_mode: `$state $what' requires $Mode{$what} arguments\n" )
+	unless 0 == @_ || $Mode{$what} == @_;
+
+      if ( T_mode eq $what )
+      {
+	croak( __PACKAGE__,
+	       "->tile_mode: unknown $state $what: $_[0]\n" )
+	  unless T_auto eq $_[0] || T_manual eq $_[0];
+
+	$self->Set( "tile $state $what $_[0]" );
+      }
+
+      else
+      {
+	$self->Set( "tile $state $what ". join( ' ', @_ ) );
+      }
+      
+    }
+
+    else
+    {
+      croak( __PACKAGE__, "->tile_mode: unknown mode `$state'\n" );
+    }
+
   }
   
 }
@@ -1672,7 +1783,7 @@ is useful for doing things like:
   unless ( $dsp->nservers )
   {
     system("ds9 &" );
-    $dsp->wait() or die( "unable to cnnect to DS9\n" );
+    $dsp->wait() or die( "unable to connect to DS9\n" );
   }
 
 =back
@@ -1862,18 +1973,30 @@ to be saved as a FITS image with the name given by C<$file>.
 
 =item frame
 
-  @Frames = $dsp->frame;
+  # get current frame(s) for server(s)
+  $frame = $dsp->frame;
+  @frames = $dsp->frame;
+
+  # get list of frames for server(s)
+  $frame_list = $dsp->frame( FR_all );
+  @frame_list = $dsp->frame( FR_all );
 
   # perform a frame operation with no arguments
   $dsp->frame( $frame_op );
 
-  # show the specified frame
+  # show the specified frame ($frame may be FR_all)
   $dsp->frame( show => $frame );
+
+  # hide the current frame
+  $dsp->frame( FR_hide );
+
+  # show the specified frame ($frame may be FR_all)
+  $dsp->frame( FR_hide => $frame );
 
   # delete the current frame
   $dsp->frame( FR_delete );
     
-  # delete the specified frame
+  # delete the specified frame  ($frame may be FR_all)
   $dsp->frame( delete => $frame );
 
   # delete all of the frames
@@ -1916,7 +2039,12 @@ For example,
 	$dsp->frame( FR_delete );	# delete the current frame
 
 If B<frame()> is called with no arguments, it returns a list of the
-current frames for all instances of B<DS9>.
+current frames for all instances of B<DS9>.  If it is called with the
+argument C<FR_all>, it returns a list of all of the frames.  In scalar
+mode, this results in it returning a reference to an array containing
+the frame ids. In list mode, it returns the standard hash as
+documented in L</Return Values>, where the C<buf> element is now a
+reference to an array containing the frame ids.
 
 =item iconify
 
@@ -2202,19 +2330,55 @@ does the trick.
 
 =item tile_mode
 
+  # get the tile mode
+  $mode = $dsp->tile_mode( );
+
+  # set the tile mode
   $dsp->tile_mode( $mode );
 
-Change the tiling mode.  This does B<not> switch into or out of tile
-mode; use B<display()> to do that.  If called without a value, it will
-return the current tiling mode.
+  # get the grid mode attributes
+  $attr = $dsp->tile_mode( T_grid, $attr );
 
-Predefined constants are available, importable via the C<tile> tag (see
-L</Constants>).  The available constants and their values are:
+  # set the grid mode attributes
+  $dsp->tile_mode( T_grid, $attr, $arg1, ... );
+
+Set (or get) the tiling mode.  This does B<not> switch into or out of
+tile mode; use B<display()> to do that.  If called without a value, it
+will return the current tiling mode.
+
+Predefined constants for the modes, grid attributes, and grid mode are
+available, importable via the C<tile> tag (see L</Constants>).  The
+modes are:
 
 	T_grid	 => 'grid'
 	T_column => 'column'
 	T_row	 => 'row'
 
+The grid attributes are:
+
+	T_gap	 => 'gap'
+	T_layout => 'layout'
+	T_mode	 => 'mode'
+
+and the grid mode values are.
+
+	T_auto	 => 'automatic'
+	T_manual => 'manual'
+
+The grid mode can be either of the above values,
+
+  $dsp->tile_mode( T_grid, T_mode, T_auto );
+
+The grid gap is a value in pixels:
+
+  $dsp->tile_mode( T_grid, T_gap, $pixels );
+
+and the grid layout requires the values for the rows and columns:
+
+  $dsp->tile_mode( T_grid, T_layout, $row, $col );
+
+Note that when getting the current grid layout parameter, it is
+returned as a references to an array containing the row and column values.
 
 =item view
 
@@ -2529,6 +2693,11 @@ well as
 	T_grid	 => 'grid'
 	T_column => 'column'
 	T_row	 => 'row'
+	T_gap	 => 'gap'
+	T_layout => 'layout'
+	T_mode	 => 'mode'
+	T_auto	 => 'automatic'
+	T_manual => 'manual'
 
 
 =item view
