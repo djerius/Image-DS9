@@ -20,33 +20,33 @@ require AutoLoader;
 @EXPORT = qw( );
 
 my @frame_ops = qw( 
-		   FOP_center
-		   FOP_clear
-		   FOP_delete
-		   FOP_hide
-		   FOP_new
-		   FOP_refresh
-		   FOP_reset
-		   FOP_show
-		   FOP_first
-		   FOP_next
-		   FOP_prev
-		   FOP_last
+		   FR_center
+		   FR_clear
+		   FR_delete
+		   FR_hide
+		   FR_new
+		   FR_refresh
+		   FR_reset
+		   FR_show
+		   FR_first
+		   FR_next
+		   FR_prev
+		   FR_last
 		  );
 
 my @tile_ops  = qw( T_Grid T_Column T_Row );
 
 my @extra_ops = qw( ON OFF );
 
-my @file_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
+my @filetype_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
 
-@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @file_ops );
+@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @filetype_ops );
 
 %EXPORT_TAGS = ( 
-		frame_ops => \@frame_ops,
-		tile_ops => \@tile_ops,
-		all => [ @frame_ops, @tile_ops, @extra_ops, @file_ops ],
-		file_ops => \@file_ops,
+		frame => \@frame_ops,
+		tile => \@tile_ops,
+		all => [ @frame_ops, @tile_ops, @extra_ops, @filetype_ops ],
+		filetype => \@filetype_ops,
 	       );
 $VERSION = '0.05';
 
@@ -250,18 +250,18 @@ sub colormap
   }
 }
 
-use constant FOP_center  => 'center';
-use constant FOP_clear	 => 'clear';
-use constant FOP_delete  => 'delete';
-use constant FOP_hide    => 'hide';
-use constant FOP_new     => 'new';
-use constant FOP_refresh => 'refresh';
-use constant FOP_reset   => 'reset';
-use constant FOP_show    => 'show';
-use constant FOP_first	 => 'first';
-use constant FOP_next	 => 'next';
-use constant FOP_prev	 => 'prev';
-use constant FOP_last	 => 'last';
+use constant FR_center  => 'center';
+use constant FR_clear	 => 'clear';
+use constant FR_delete  => 'delete';
+use constant FR_hide    => 'hide';
+use constant FR_new     => 'new';
+use constant FR_refresh => 'refresh';
+use constant FR_reset   => 'reset';
+use constant FR_show    => 'show';
+use constant FR_first	 => 'first';
+use constant FR_next	 => 'next';
+use constant FR_prev	 => 'prev';
+use constant FR_last	 => 'last';
 
 sub frame
 {
@@ -358,7 +358,7 @@ Image::DS9 - interface to the DS9 image display and analysis program
 =head1 SYNOPSIS
 
   use Image::DS9;
-  use Image::DS9 qw( :frame_ops :tile_ops :tile_ops );
+  use Image::DS9 qw( :frame :tile :filetype );
   use Image::DS9 qw( :all );
 
   $dsp = new Image::DS9;
@@ -406,30 +406,30 @@ spelling out how to do this.
 
 Predefined constants may be imported when the B<Image::DS9> package
 is loaded, by specifying one or more of the following tags:
-C<frame_ops>, C<tile_ops>, C<all>.  For example:
+C<frame>, C<tile>, C<filetype>, C<all>.  For example:
 
-	use Image::DS9 qw( :frame_ops :tile_ops );
+	use Image::DS9 qw( :frame :tile :filetype );
 
-The C<frame_ops> group imports
-C<FOP_center>,
-C<FOP_clear>,
-C<FOP_delete>,
-C<FOP_hide>,
-C<FOP_new>,
-C<FOP_refresh>,
-C<FOP_reset>,
-C<FOP_show>,
-C<FOP_first>,
-C<FOP_next>,
-C<FOP_prev>,
-C<FOP_last>.
+The C<frame> group imports
+C<FR_center>,
+C<FR_clear>,
+C<FR_delete>,
+C<FR_hide>,
+C<FR_new>,
+C<FR_refresh>,
+C<FR_reset>,
+C<FR_show>,
+C<FR_first>,
+C<FR_next>,
+C<FR_prev>,
+C<FR_last>.
 
-The C<tile_ops> group imports
+The C<tile> group imports
 C<T_Grid>,
 C<T_Column>,
 C<T_Row>.
 
-The C<file_ops> group imports
+The C<filetype> group imports
 C<FT_MosaicImage>,
 C<FT_MosaicImages>,
 C<FT_Mosaic>,
@@ -565,7 +565,7 @@ it will return the current status of frame blinking.
 Display the specified C<$file>.  The file type is optional, and may be
 one of the following constants: C<FT_MosaicImage>, C<FT_MosaicImages>,
 C<FT_Mosaic>, C<FT_Array> (or one of the strings C<'mosaicimage'>,
-C<'mosaicimages'>, C<'mosaic'>, or C<'array'> ). (Import the C<file_ops>
+C<'mosaicimages'>, C<'mosaic'>, or C<'array'> ). (Import the C<filetype>
 tag to get the constants).
 
 If called without a value, it will return the current file name loaded
@@ -630,10 +630,10 @@ To load a particular frame, specify the frame name as the operator.
 
 For example,
 
-	$dsp->frame( FOP_new );		# use the constant
+	$dsp->frame( FR_new );		# use the constant
 	$dsp->frame( 'new' );		# use the string literal
 	$dsp->frame( '3' );		# load frame 3
-	$dsp->frame( FOP_delete );	# delete the current frame
+	$dsp->frame( FR_delete );	# delete the current frame
 
 If B<frame()> is called with no arguments, it returns a list of the
 current frames for all instances of B<DS9>.
