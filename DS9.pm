@@ -1,7 +1,14 @@
 package Image::DS9;
 
 use strict;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS );
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $use_PDL);
+
+
+BEGIN {
+  eval "use PDL::Types; use PDL::Core"; 
+  $use_PDL = $@ ? 0 : 1;
+}
+
 
 require Exporter;
 require AutoLoader;
@@ -26,7 +33,7 @@ my @extra_ops = qw( ON OFF );
 		tile_ops => \@tile_ops,
 		all => [ @frame_ops, @tile_ops, @extra_ops ],
 	       );
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 use Carp;
 use Data::Dumper;
@@ -38,18 +45,6 @@ use constant CLASS => 'Image::DS9';
 use constant ON		 => 1;
 use constant OFF	 => 0;
 
-
-eval { 
-  require PDL::Types;
-  PDL::Types->import();
-
-  require PDL::Core;
-  PDL::Core->import();
-};
-
-croak( "failed: $@" ) if $@;
-my $use_PDL;
-$use_PDL = 1 unless $@;
 
 # Preloaded methods go here.
 
@@ -121,6 +116,8 @@ sub res
 
   if ( $use_PDL )
   {
+    # if PDL isn't there, this'll cause compile time errors
+    eval q{
     %map = (
 	    $PDL::Types::PDL_B => 8,
 	    $PDL::Types::PDL_S => 16,
@@ -128,7 +125,7 @@ sub res
 	    $PDL::Types::PDL_L => 32,
 	    $PDL::Types::PDL_F => -32,
 	    $PDL::Types::PDL_D => -64
-	   );
+	   );}
   }
 
   my %def_attrs = ( xdim => undef,

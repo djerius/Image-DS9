@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.03  Tue May  2 11:33:09 EDT 2000
+	- revised check for PDL to be cleaner
+
 0.02  Wed Apr 26 15:19:46 EDT 2000
 	- added tile and tile_mode.
 	- if max_server == 1, return nicer output from retrieves.
