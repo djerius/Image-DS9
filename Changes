@@ -1,5 +1,27 @@
 Revision history for Perl extension Image::DS9.
 
+0.16  Mon Sep 23 18:34:45 EDT 2002
+
+        - now uses a table driven parser to generate the methods and
+          data conversion between Perl and DS9.
+
+        - realized the futility of keeping the docs up-to-date in
+	  parallel with DS9.  Now just list the options supported,
+	  rather than duplicate the DS9 docs.
+
+        - the display() and tile_mode() methods are no longer supported.
+          display() was an attempt to unify tile, blink, and single
+          in a clean way.  I've decided to just track the actual
+	  XPA access methods rather than foist my view of how things
+	  should tie together. So, display() should be replaced with
+	  the appropriate calls to tile(), blink(), or single().
+	  tile_mode() was really tile() all along...
+
+        - earlier versions of this package had a gadzillion constants
+          for all of the commands and subcommands and enumerated values.
+          this was a real mess.  the constants are now in their own
+          package, and are deprecated.
+
 0.15  Tue Jan 29 12:27:06 EST 2002
         - added dss()
 
