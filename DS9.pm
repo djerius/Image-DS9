@@ -16,7 +16,7 @@ require Exporter;
 # export nothing by default
 @EXPORT = qw( );
 
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 use Carp;
 use IPC::XPA;
@@ -92,6 +92,11 @@ sub _flatten_hash
       foreach grep { exists $def_obj_attrs{$_} } keys %$u_attrs;
   }
 
+}
+
+sub DESTROY
+{
+  $_[0]->{xpa}->Close;
 }
 
 #####################################################################
@@ -207,8 +212,13 @@ sub fits
 {
   my $self = shift;
 
-  my $cmd = Image::DS9::Command->new( 'fits', {noattrs => 1}, @_ )
-    or croak( __PACKAGE__, ":internal error: unknown method `fits'\n" );
+  my $cmd;
+
+  {
+    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+    $cmd = Image::DS9::Command->new( 'fits', {noattrs => 1}, @_ )
+      or croak( __PACKAGE__, ":internal error: unknown method `fits'\n" );
+  }
 
   return $self->_get( $cmd )
     if $cmd->query;
@@ -232,9 +242,13 @@ sub file
 {
   my $self = shift;
 
-  my $cmd = Image::DS9::Command->new( 'file', {noattrs => 1}, @_ )
-    or croak( __PACKAGE__, ":internal error: unknown method `file'\n" );
+  my $cmd;
 
+  { 
+    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+    $cmd = Image::DS9::Command->new( 'file', {noattrs => 1}, @_ )
+      or croak( __PACKAGE__, ":internal error: unknown method `file'\n" );
+  }
   return $self->_get( $cmd )
     if $cmd->query;
 

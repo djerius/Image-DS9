@@ -42,12 +42,8 @@ arguments affect things, please consult the B<DS9> documentation.
 
 =head2 Arguments
 
-Commands sent to DS9 are sent as strings.  In previous versions of
-B<Image::DS9>, many of the commands and subcommands were available as
-Perl constants.  However, the resulting mass of constants wasn't well
-structured.  They are available via the B<Image::DS9::OldConstants>
-package.  They may be introduced in another form in future versions of
-this package.
+Commands sent to DS9 are sent as strings.  Many of the option strings
+are available as Perl constants.  See L</Constants> for more details.
 
 =head2 Boolean values
 
@@ -724,8 +720,18 @@ To specify grid modes, layout and gap, do this:
 
   $dsp->tile( grid => mode => 'automatic' );
 
+To turn tiling on or off,
+
+  $dsp->tile( $boolean ).
+
+To query tiling state, either
+
+  $state = $dsp->tile;
+  $state = $dsp->tile( 'state' ); # same as blink and single
+
 To query those options that support query, don't pass a value for the option.
 Note that a query of the grid layout will return an arrayref.
+
 
 =item update
 
@@ -833,6 +839,42 @@ The hash values are themselves references to hashes containing
 the results, with a key of C<buf>.
 
 =back
+
+=head2 Constants
+
+Many of the options which must be passed as strings to the command
+methods are available as Perl constants.  This provides a way for Perl
+to verify the strings at compile time, rather than run time.  For
+example,
+
+  $ds9->regions( 'resett' );
+
+will be caught at run time, while
+
+  $ds9->regions( _resett );
+
+will be caught at compile time.  There are some places where Perl
+will get confused as to whether you are using a constant or a string.
+For example, assume there's a constant named C<_mode>:
+
+  $ds9->tile( _mode => 'grid' );
+
+Because of the C<=E<gt>> operator, C<_mode> will be turned into the
+string C<_mode>, rather than being identified as the constant B<_mode>,
+which presumably will resolve into the string C<mode>.  To avoid this,
+use the C<,> operator:
+
+  $ds9->tile( _mode, 'grid' );
+
+There are two ways to get to the constants:
+B<Image::DS9::OldConstants> and B<Image::DS9::Constants>.  The former
+is the older deprecated way, which groups the constants by command and
+uses a group specific prefix to make the constants unique.  This is
+confusing, as one has to remember all of the prefixes.
+
+The new arrangement uses a single prefix for all constants.  The
+prefix defaults to C<_>, but may be specified by the user.  See
+B<Image::DS9::Constants> for more info.
 
 =head1 Obsolete Methods, Changed Interfaces
 

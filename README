@@ -59,6 +59,11 @@ CHANGES
 
     Major changes only. See the Changes file for more details.
 
+    0.17
+    ----
+      - Image::DS9::Constants added, to get at the constants in the
+        new, approved, fashion.
+
     0.16
     ----
       - most of DS9's access points are now supported.
@@ -80,8 +85,8 @@ CHANGES
 
       - earlier versions of this package had a gadzillion constants
         for all of the commands and subcommands and enumerated values.
-        this was a real mess.  the constants are now in their own
-        package, and are deprecated.
+        this was a real mess.  the constants have been moved to
+	Image::DS9::OldConstants, and are deprecated.
 	
 
     0.15 

@@ -1,5 +1,9 @@
 Revision history for Perl extension Image::DS9.
 
+0.17  Wed Sep 25 17:00:03 EDT 2002
+        - added Image::DS9::Constants
+	- revamped test suite
+
 0.16  Mon Sep 23 18:34:45 EDT 2002
 
         - most of DS9's access points are now supported.
