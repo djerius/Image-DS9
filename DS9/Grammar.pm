@@ -57,8 +57,15 @@ our %Grammar =
      { args => [ INT ] }
     ],
 
+    # cols can take 2 or three arguments.  the current interface
+    # doesn't handle this elegantly, so try 3 args first.  it'll
+    # always be the one to be queried, so have it return an indeterminate
+    # length array (which isn't length checked yet anyway)
     [ 
      ['cols'],
+     { args => [ STRING, STRING, STRING ],
+       rvals => [ ARRAY ]
+     },
      { args => [ STRING, STRING ] }
     ],
 
@@ -168,8 +175,14 @@ our %Grammar =
 
     [
      ['save'],
-     { args => [ COORDSYS ], query => QNONE },
-     { args => [ COORDSYS, SKYFRAME ], query => QNONE }
+     { args => [ STRING, COORDSYS ], query => QNONE },
+     { args => [ STRING, COORDSYS, SKYFRAME ], query => QNONE }
+    ],
+
+    [
+     ['load'],
+     { args => [ STRING, COORDSYS, COLOR, FLOAT ], query => QNONE },
+     { args => [ STRING, COORDSYS, SKYFRAME, COLOR, FLOAT ], query => QNONE }
     ],
 
     [
