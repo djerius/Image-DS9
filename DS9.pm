@@ -26,14 +26,17 @@ my @tile_ops  = qw( T_GRID T_COLUMN T_ROW );
 
 my @extra_ops = qw( ON OFF );
 
-@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops );
+my @file_ops = qw( FT_MosaicImage FT_MosaicImages FT_Mosaic FT_Array );
+
+@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops, @file_ops );
 
 %EXPORT_TAGS = ( 
 		frame_ops => \@frame_ops,
 		tile_ops => \@tile_ops,
-		all => [ @frame_ops, @tile_ops, @extra_ops ],
+		all => [ @frame_ops, @tile_ops, @extra_ops, @file_ops ],
+		file_ops => \@file_ops,
 	       );
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 use Carp;
 use Data::Dumper;
@@ -252,6 +255,24 @@ sub frame
 
 }
 
+sub file
+{
+  my ( $self, $file, $type ) = @_;
+
+  unless( defined $file )
+  {
+    return $self->_Get( 'file' );
+  }
+
+  else
+  {
+    $type ||= '';
+    $self->_Set( "frame $type $file" );
+  }
+
+
+}
+
 sub _Set
 {
   my ( $self, $cmd, $buf ) = @_;
@@ -305,7 +326,8 @@ Image::DS9 - interface to the DS9 image display and analysis program
 =head1 SYNOPSIS
 
   use Image::DS9;
-  use Image::DS9 qw( :frame_ops );
+  use Image::DS9 qw( :frame_ops :tile_ops :tile_ops );
+  use Image::DS9 qw( :all );
 
   $dsp = new Image::DS9;
   $dsp = new Image::DS9( \%attrs );
@@ -490,6 +512,20 @@ number.
 Turn frame blinking on or off.  B<$state> may be the constants 
 C<ON>, C<OFF>, C<'yes'>, C<'no'>, C<0>, C<1>.  If called without a value,
 it will return the current status of frame blinking.
+
+=item file
+
+  $dsp->file( $file );
+  $dsp->file( $file, $type );
+
+Display the specified C<$file>.  The file type is optional, and may be
+one of the following constants: C<FT_MosaicImage>, C<FT_MosaicImages>,
+C<FT_Mosaic>, C<FT_Array> (or one of the strings C<'mosaicimage'>,
+C<'mosaicimages'>, C<'mosaic'>, or C<'array'> ). (Import the C<file_ops>
+tag to get the constants).
+
+If called without a value, it will return the current file name loaded
+for the curent frame.
 
 =item tile
 
