@@ -60,7 +60,7 @@ sub _flatten_hash
 # create new XPA object
 {
 
-  my %def_obj_attrs = ( Server => SERVER );
+  my %def_obj_attrs = ( Server => SERVER, min_servers => 1 );
   my %def_xpa_attrs = ( max_servers => 1 );
 
   sub new
@@ -262,6 +262,9 @@ sub _Set
     $self->{res} = \@res;
     croak( CLASS, " -- error sending data to server" );
   }
+
+  croak( CLASS, " -- fewer than ",$self->{min_servers}," server(s) responded" )
+    if @res < $self->{min_servers};
 }
 
 sub _Get
@@ -274,6 +277,9 @@ sub _Get
     croak( CLASS, " -- error sending data to server" );
   }
   
+  croak( CLASS, " -- fewer than ",$self->{min_servers}," servers(s) responded" )
+    if @res < $self->{min_servers};
+
   if ( 1 == $self->{xpa_attrs}{max_servers} )
   {
     return $res[0]->{buf};
@@ -425,14 +431,20 @@ An alternate server to which to communicate.  It defaults to C<ds9>.
 =item max_servers
 
 The maximum number of servers to which to communicate.  It defaults to
-C<1>
+C<1>.
+
+=item min_servers
+
+The minimum number of servers which should respond to commands.  If
+a response is not received from at least this many servers, an exception
+will be thrown.  It defaults to C<1>.
+
 
 =back
 
 For example,
 
 	$dsp = new Image::DS9( { max_servers => 3 } );
-
 
 
 =item nservers
