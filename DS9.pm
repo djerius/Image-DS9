@@ -62,7 +62,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.104';
+$VERSION = '0.105';
 
 use Carp;
 use Data::Dumper;
@@ -343,7 +343,7 @@ sub colormap
 		      { chomp => 1, res_wanthash => wantarray() } );
   }
   
-  elsif ( CM_invert eq $state )
+  elsif ( CM_invert eq $colormap )
   {
     if ( defined $state )
     {

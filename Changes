@@ -1,5 +1,9 @@
 Revision history for Perl extension Image::DS9.
 
+0.105
+	- colormap was incorrectly looking at $state
+	  instead of $colormap when looking for the inversion tag
+
 0.104  Mon Aug 13 14:17:46 EDT 2001
         - ensured that the CTYPE? WCS keywords are surrounded by 
 	  apostrophes
