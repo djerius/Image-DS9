@@ -14,6 +14,7 @@ README
 TODO
 m31.fits.gz
 snooker.fits.gz
+t/array.t
 t/bin.t
 t/blink.t
 t/cmap.t
@@ -34,7 +35,6 @@ t/nameserver.t
 t/orient.t
 t/page.t
 t/pan.t
-t/pdl.t
 t/pixeltable.t
 t/print.t
 t/raise.t
