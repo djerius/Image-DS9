@@ -61,6 +61,8 @@ CHANGES
 
     0.16
     ----
+      - most of DS9's access points are now supported.
+
       - now uses a table driven parser to generate the methods and
         data conversion between Perl and DS9.
 

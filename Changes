@@ -20,7 +20,7 @@ Revision history for Perl extension Image::DS9.
         - earlier versions of this package had a gadzillion constants
           for all of the commands and subcommands and enumerated values.
           this was a real mess.  the constants are now in their own
-          package, and are deprecated.
+          package (Image::DS9::OldConstants), and are deprecated.
 
 0.15  Tue Jan 29 12:27:06 EST 2002
         - added dss()
