@@ -44,7 +44,7 @@ sub parse
 
   local $Carp::CarpLevel = $Carp::CarpLevel + 1; 
 
-  my $match = Image::DS9::Parser::parse_spec( $self->{spec}, @_ );
+  my $match = Image::DS9::Parser::parse_spec( $self->{command}, $self->{spec}, @_ );
 
   my ( $key, $value );
   $self->{$key} = $value while ( $key, $value ) = each %$match;
@@ -161,8 +161,32 @@ sub cvt_get
   my @input = @{$self->{argl}{rvals}} > 1 ? _splitbuf( $_[0] ) : ( $_[0] );
   my @output;
 
-  @input == @{$self->{argl}{rvals}} or
-    croak( __PACKAGE__, "::cvt_get: $self->{command}: mismatch in number of expected vs. retrieved values" );
+  if ( @input != @{$self->{argl}{rvals}} )
+  {
+    # too many results is always an error
+    if ( @input > @{$self->{argl}{rvals}} )
+    {
+      croak( __PACKAGE__, 
+	    "::cvt_get: $self->{command}: expected ", 
+	    scalar @{$self->{argl}{rvals}}, 
+	    " values, got ", scalar @input );
+    }
+
+    unless ( $self->{opts}{ResErrIgnore} )
+    {
+      no strict 'refs';
+      my $func = $self->{opts}{ResErrWarn} ? 'carp' : 'croak';
+      &$func( __PACKAGE__, 
+	    "::cvt_get: $self->{command}: expected ", 
+	    scalar @{$self->{argl}{rvals}}, 
+	    " values, got ", scalar @input );
+    }
+
+    if ( @input < @{$self->{argl}{rvals}} )
+    {
+      push @input, () x ( @{$self->{argl}{rvals}} - @input );
+    }
+  }
 
   if ( $self->{cvt} )
   {
