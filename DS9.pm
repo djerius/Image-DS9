@@ -19,10 +19,22 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw( );
 
-my @frame_ops = qw( FOP_NEW FOP_DELETE FOP_RESET 
-		    FOP_REFRESH FOP_CENTER FOP_HIDE FOP_SHOW );
+my @frame_ops = qw( 
+		   FOP_center
+		   FOP_clear
+		   FOP_delete
+		   FOP_hide
+		   FOP_new
+		   FOP_refresh
+		   FOP_reset
+		   FOP_show
+		   FOP_first
+		   FOP_next
+		   FOP_prev
+		   FOP_last
+		  );
 
-my @tile_ops  = qw( T_GRID T_COLUMN T_ROW );
+my @tile_ops  = qw( T_Grid T_Column T_Row );
 
 my @extra_ops = qw( ON OFF );
 
@@ -195,9 +207,9 @@ sub tile
 
 }
 
-use constant T_GRID	 => 'grid';
-use constant T_COLUMN	 => 'column';
-use constant T_ROW	 => 'row';
+use constant T_Grid	 => 'grid';
+use constant T_Column	 => 'column';
+use constant T_Row	 => 'row';
 
 sub tile_mode
 {
@@ -230,13 +242,18 @@ sub colormap
   }
 }
 
-use constant FOP_NEW     => 'new';
-use constant FOP_DELETE  => 'delete';
-use constant FOP_RESET   => 'reset';
-use constant FOP_REFRESH => 'refresh';
-use constant FOP_CENTER  => 'center';
-use constant FOP_HIDE    => 'hide';
-use constant FOP_SHOW    => 'show';
+use constant FOP_center  => 'center';
+use constant FOP_clear	 => 'clear';
+use constant FOP_delete  => 'delete';
+use constant FOP_hide    => 'hide';
+use constant FOP_new     => 'new';
+use constant FOP_refresh => 'refresh';
+use constant FOP_reset   => 'reset';
+use constant FOP_show    => 'show';
+use constant FOP_first	 => 'first';
+use constant FOP_next	 => 'next';
+use constant FOP_prev	 => 'prev';
+use constant FOP_last	 => 'last';
 
 sub frame
 {
@@ -254,6 +271,11 @@ sub frame
 
 
 }
+
+use constant FT_MosaicImage	=> 'mosaicimage';
+use constant FT_MosaicImages	=> 'mosaicimages';
+use constant FT_Mosaic		=> 'mosaic';
+use constant FT_Array		=> 'array';
 
 sub file
 {
@@ -379,18 +401,23 @@ C<frame_ops>, C<tile_ops>, C<all>.  For example:
 	use Image::DS9 qw( :frame_ops :tile_ops );
 
 The C<frame_ops> group imports
-C<FOP_NEW>,
-C<FOP_DELETE>,
-C<FOP_RESET>,
-C<FOP_REFRESH>, 
-C<FOP_CENTER>, 
-C<FOP_HIDE>,
-C<FOP_SHOW>.
+C<FOP_center>,
+C<FOP_clear>,
+C<FOP_delete>,
+C<FOP_hide>,
+C<FOP_new>,
+C<FOP_refresh>,
+C<FOP_reset>,
+C<FOP_show>,
+C<FOP_first>,
+C<FOP_next>,
+C<FOP_prev>,
+C<FOP_last>.
 
 The C<tile_ops> group imports
-C<T_GRID>,
-C<T_COLUMN>,
-C<T_ROW>.
+C<T_Grid>,
+C<T_Column>,
+C<T_Row>.
 
 The C<file_ops> group imports
 C<FT_MosaicImage>,
@@ -545,8 +572,8 @@ without a value, it will return the current status of frame blinking.
 
   $dsp->tile_mode( $mode );
 
-The tiling mode may be specified by setting C<$mode> to C<T_GRID>,
-C<T_COLUMN>, or C<T_ROW>.  These constants are available if the
+The tiling mode may be specified by setting C<$mode> to C<T_Grid>,
+C<T_Column>, or C<T_Row>.  These constants are available if the
 C<tile_op> tags are imported.  Otherwise, use C<'mode grid'>, c<'mode
 column'>, or C<'mode row'>.  If called without a value, it will return
 the current tiling mode.
@@ -574,17 +601,28 @@ strings.  As B<DS9> will interpret any string which isn't a frame operation
 as the name of frame to switch to (or create, if necessary), B<Image::DS9>
 provides constants for the standard operations to prevent typos.  See
 the L<Constants> section.
-Otherwise, use the strings C<'new'>, C<'delete'>, C<'reset'>
-C<'refresh'>, C<'center'>, C<'hide'>, C<'show'>.
+Otherwise, use the strings 
+C<center>,
+C<clear>,
+C<delete>,
+C<hide>,
+C<new>,
+C<refresh>,
+C<reset>,
+C<show>,
+C<first>,
+C<next>,
+C<prev>,
+C<last>.
 
 To load a particular frame, specify the frame name as the operator.
 
 For example,
 
-	$dsp->frame( FOP_NEW );		# use the constant
+	$dsp->frame( FOP_new );		# use the constant
 	$dsp->frame( 'new' );		# use the string literal
 	$dsp->frame( '3' );		# load frame 3
-	$dsp->frame( FOP_DELETE );	# delete the current frame
+	$dsp->frame( FOP_delete );	# delete the current frame
 
 If B<frame()> is called with no arguments, it returns a list of the
 current frames for all instances of B<DS9>.
