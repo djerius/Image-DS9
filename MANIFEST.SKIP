@@ -2,6 +2,10 @@ CONTRIB
 \bRCS\b
 ^MANIFEST\.
 ^Makefile$
+^GNUmakefile
+^INSTALL
+\.tar\.gz$
+\.tar$
 ~$
 ^[^/]*\.html$
 \.old$
