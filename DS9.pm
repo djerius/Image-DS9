@@ -19,11 +19,24 @@ require Exporter;
 # each method which defines tags has a BEGIN
 # block which preloads EXPORT_TAGS.  what's left is just
 # the non-method specific stuff, i.e. the extras...
-use constant ON		=> 1;
-use constant OFF	=> 0;
+use constant ON		=> 'on';
+use constant OFF	=> 'off';
 use constant YES	=> 'yes';
 use constant NO		=> 'no';
-our @extra_tags = qw( ON OFF YES NO );
+use constant TRUE	=> 'true';
+use constant FALSE	=> 'false';
+
+our @extra_tags = qw( ON OFF YES NO TRUE FALSE );
+
+our %bool = ( 0    , 0,
+	      1    , 1,
+	      YES  , 1,
+	      NO   , 0,
+	      TRUE , 1,
+	      FALSE, 0,
+	      ON   , 1,
+	      OFF  , 0 );
+
 
 $EXPORT_TAGS{extra} = \@extra_tags;
 
@@ -1025,12 +1038,16 @@ use constant S_global	=> 'global';
 use constant S_limits	=> 'limits';
 use constant S_mode	=> 'mode';
 use constant S_scope	=> 'scope';
+use constant S_datasec  => 'datasec';
 
 
 BEGIN 
 { 
   my @symbols = qw( S_linear S_log S_squared S_sqrt S_minmax S_zscale
-		       S_user S_local S_global S_limits S_mode S_scope );
+		    S_user S_local S_global S_limits S_mode S_scope 
+		    S_datasec
+		  );
+
   $EXPORT_TAGS{scale} = \@symbols;
   
   my %scopes = map { $_, 1 } ( S_local, S_global );
@@ -1064,6 +1081,23 @@ BEGIN
       $self->Set( "scale scope $what" );
     }
     
+    elsif ( S_datasec eq $what )
+    {
+      my $arg = shift;
+      
+      unless ( defined $arg )
+      {
+	return $self->_Get( "scale $what",
+			  { chomp => 1, res_wanthash => wantarray() } );
+      }
+      
+      croak( __PACKAGE__, "->scale: illegal boolean value: `$arg'\n" )
+	unless exists $bool{lc $arg};
+      
+      $self->Set( "scale $what $arg" );
+    }
+    
+
     elsif ( S_limits eq $what )
     {
       my $what = shift;
@@ -1656,10 +1690,12 @@ Some methods take boolean values; these may be the strings C<on>, C<off>,
 C<yes>, C<no>, or the integers C<1> or C<0>.  There are predifined
 constants available for these:
 
-	ON	=> 1
-	OFF	=> 0
+	ON	=> 'on'
+	OFF	=> 'off'
 	YES	=> 'yes'
 	NO	=> 'no'
+	TRUE	=> 'true'
+	FALSE	=> 'false'
 
 =head2 Return Values
 
@@ -2328,6 +2364,13 @@ which isn't quite what you want.  Either of these
 
 does the trick.
 
+Finally, to indicate whether only the data section of the image is
+to be displayed, use C<S_datasec>, with a boolean value:
+
+	$dsp->scale( S_datasec, TRUE );
+        $datasec = $dsp->scale( S_datasec );
+
+
 =item tile_mode
 
   # get the tile mode
@@ -2687,6 +2730,7 @@ well as
 	S_limits   => 'limits'
 	S_mode     => 'mode'
 	S_scope    => 'scope'
+        S_datasec  => 'datasec'
 
 =item tile
 

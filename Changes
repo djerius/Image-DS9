@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.11  Fri Oct 12 13:22:02 EDT 2001
+        - implemented scale datasec
+
 0.11  Thu Oct 11 17:35:35 EDT 2001
         - frame hide now takes an argument (so can do hide all)
 	- frame all implemented so can get list of all frames
