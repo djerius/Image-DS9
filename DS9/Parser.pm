@@ -12,6 +12,7 @@ use Image::DS9::PConsts;
 
 sub parse_spec
 {
+  my $command = shift;
   my $specs = shift;
 
   # keep the rest of the args in @_, so don't copy data
@@ -148,10 +149,10 @@ sub parse_spec
       if ( $found_attrs )
       {
 	# we need to make a copy, 
-	$match{attrs} = parse_attr( $_[-1], $argl->{attrs} );
+	$match{attrs} = parse_attr( $command, $_[-1], $argl->{attrs} );
 
 	croak( __PACKAGE__,
-	       ": cannot specify attributes with this query" )
+	       ": $command: cannot specify attributes with this query" )
 	  if $match{query} && ! ($argl->{query} & QATTR);
 
       }
@@ -166,7 +167,7 @@ sub parse_spec
   $max_match += $nmatch + 1;
 
   croak( __PACKAGE__, 
-	 ": missing, unexpected, or illegal value for argument #$max_match" )
+	 ": $command: missing, unexpected, or illegal value for argument #$max_match" )
     unless defined $match{argl};
 
 #  print Dumper \%match;
@@ -176,7 +177,7 @@ sub parse_spec
 
 sub parse_attr
 {
-  my ( $uattr, $specs ) = @_;
+  my ( $command, $uattr, $specs ) = @_;
 
   my %attr;
 
@@ -184,11 +185,11 @@ sub parse_attr
   # destroys the array
   my @specs = @$specs;
 
-  _parse_attr( \%attr, $uattr, \@specs );
+  _parse_attr( $command, \%attr, $uattr, \@specs );
 
   my @unknown = grep { ! exists $attr{$_} } keys %$uattr;
 
-  croak( __PACKAGE__, ": unknown attribute(s): ",
+  croak( __PACKAGE__, ": $command: unknown attribute(s): ",
 	 join( ', ', @unknown ) ) if @unknown;
 
   \%attr;
@@ -196,7 +197,7 @@ sub parse_attr
 
 sub _parse_attr
 {
-  my ( $attr, $uattr, $specs ) = @_;
+  my ( $command, $attr, $uattr, $specs ) = @_;
 
   my $nmatch;
   my @res;
@@ -207,7 +208,7 @@ sub _parse_attr
     {
       my $op = $1;
 
-      my ($sres, $smatch) = _parse_attr( $attr, $uattr, shift @$specs );
+      my ($sres, $smatch) = _parse_attr( $command, $attr, $uattr, shift @$specs );
 
       if ( 'a' eq $op )
       {
@@ -222,7 +223,7 @@ sub _parse_attr
 	# number of matches should equal number of attrs
 	unless ( $smatch == @$sres )
 	{
-	  croak( "missing attributes: ", 
+	  croak( __PACKAGE__, ": $command: missing attributes: ", 
 	        dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
 	}
 
@@ -243,7 +244,7 @@ sub _parse_attr
 	# only should have one match
 	unless ( $smatch == 1 )
 	{
-	  croak( "too many attributes: ", 
+	  croak( __PACKAGE__, ": $command: too many attributes: ", 
 	        dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
 	}
 
@@ -254,7 +255,7 @@ sub _parse_attr
     }
     else
     {
-      my $match = chk_attr( $spec, shift(@$specs), $attr, $uattr );
+      my $match = chk_attr( $command, $spec, shift(@$specs), $attr, $uattr );
       $nmatch++ if $match;
 
       push @res, { what => $spec, 
@@ -280,7 +281,7 @@ sub dump_attr_chk
       my $msep = 
 	'a' eq $res->{op} ? ' & ' :
 	'o' eq $res->{op} ? ' | ' :
-	  croak( "internal error" );
+	  croak( __PACKAGE__, "::dump_attr_chk: internal error" );
 
       my $nmsg = dump_attr_chk( $res->{what}, $msep );
       $msg .= "($nmsg)$sep";
@@ -299,7 +300,7 @@ sub dump_attr_chk
 
 sub chk_attr
 {
-  my ( $key, $type, $attr, $uattr ) = @_;
+  my ( $command, $key, $type, $attr, $uattr ) = @_;
   
   if ( exists $uattr->{$key} )
   {
@@ -311,7 +312,7 @@ sub chk_attr
     }
     else
     {
-      croak( "attribute `$key': illegal value. perhaps the wrong type or array length?" );
+      croak( __PACKAGE__, ": $command: attribute `$key': illegal value. perhaps the wrong type or array length?" );
     }
 
     return 1;
