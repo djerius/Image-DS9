@@ -206,7 +206,7 @@ sub list
 
 sub gen_list
 {
-  my $pfx = 'x_';
+  my $pfx = '_';
 
   if ( @_ > 1 && $_[1] eq 'Prefix' )
   {
@@ -242,7 +242,7 @@ __END__
   use Image::DS9::Constants;
 
   # import a subset
-  use Image::DS9::Constants qw( x_const1 x_const2 );
+  use Image::DS9::Constants qw( _const1 _const2 );
 
   # change the prefix
   use Image::DS9::Constants Prefix => 'X_';
@@ -259,7 +259,7 @@ __END__
 =head1 DESCRIPTION
 
 This module provides a large number of Perl constants for option strings used
-to communicate with B<DS9>.  The constants have a default prefix of C<x_>,
+to communicate with B<DS9>.  The constants have a default prefix of C<_>,
 which may be changed by the user (see L</SYNOPSIS>).  See the documentation
 for the Perl B<constant> module for information on what constitutes a legal
 constant name (for instance, two leading underscores are not allowed).
