@@ -62,7 +62,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.102';
+$VERSION = '0.103';
 
 use Carp;
 use Data::Dumper;
@@ -1135,6 +1135,13 @@ use constant WCS_format  => 'format';
 use constant WCS_reset   => 'reset';
 use constant WCS_replace => 'replace';
 use constant WCS_append  => 'append';
+
+BEGIN
+{
+  my @symbols = qw( WCS_align WCS_format WCS_reset WCS_replace WCS_append );
+  $EXPORT_TAGS{wcs} = \@symbols;
+}
+
 
 sub wcs
 {

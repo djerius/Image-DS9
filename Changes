@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.103
+	- didn't create the wcs export tag
+
 0.102
 	- Forget Rg_file in export list
 0.101
