@@ -11,14 +11,22 @@ require AutoLoader;
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw( );
-@EXPORT_OK = qw( FOP_NEW FOP_DELETE FOP_RESET 
-		       FOP_REFRESH FOP_CENTER FOP_HIDE );
+
+my @frame_ops = qw( FOP_NEW FOP_DELETE FOP_RESET 
+		    FOP_REFRESH FOP_CENTER FOP_HIDE FOP_SHOW );
+
+my @tile_ops  = qw( T_GRID T_COLUMN T_ROW );
+
+my @extra_ops = qw( ON OFF );
+
+@EXPORT_OK = ( @frame_ops, @tile_ops, @extra_ops );
 
 %EXPORT_TAGS = ( 
-	frame_ops => [ qw( FOP_NEW FOP_DELETE FOP_RESET 
-		       FOP_REFRESH FOP_CENTER FOP_HIDE ) ],
+		frame_ops => \@frame_ops,
+		tile_ops => \@tile_ops,
+		all => [ @frame_ops, @tile_ops, @extra_ops ],
 	       );
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Carp;
 use Data::Dumper;
@@ -26,12 +34,10 @@ use IPC::XPA;
 use constant SERVER => 'ds9';
 use constant CLASS => 'Image::DS9';
 
-use constant FOP_NEW     => 'new';
-use constant FOP_DELETE  => 'delete';
-use constant FOP_RESET   => 'reset';
-use constant FOP_REFRESH => 'refresh';
-use constant FOP_CENTER  => 'center';
-use constant FOP_HIDE    => 'hide';
+
+use constant ON		 => 1;
+use constant OFF	 => 0;
+
 
 eval { 
   require PDL::Types;
@@ -175,6 +181,42 @@ sub blink
 
 }
 
+sub tile
+{
+  my ( $self, $state ) = @_;
+
+  unless ( defined $state )
+  {
+    return $self->_Get( 'tile' );
+  }
+
+  else
+  {
+    $self->_Set( "tile $state" );
+  }
+
+}
+
+use constant T_GRID	 => 'grid';
+use constant T_COLUMN	 => 'column';
+use constant T_ROW	 => 'row';
+
+sub tile_mode
+{
+  my ( $self, $state ) = @_;
+
+  unless ( defined $state )
+  {
+    return $self->_Get( 'tile mode' );
+  }
+
+  else
+  {
+    $self->_Set( "tile mode $state" );
+  }
+
+}
+
 sub colormap
 {
   my ( $self, $colormap ) = @_;
@@ -189,6 +231,14 @@ sub colormap
     $self->_Set( "colormap $colormap" );
   }
 }
+
+use constant FOP_NEW     => 'new';
+use constant FOP_DELETE  => 'delete';
+use constant FOP_RESET   => 'reset';
+use constant FOP_REFRESH => 'refresh';
+use constant FOP_CENTER  => 'center';
+use constant FOP_HIDE    => 'hide';
+use constant FOP_SHOW    => 'show';
 
 sub frame
 {
@@ -215,11 +265,8 @@ sub _Set
   if ( grep { defined $_->{message} } @res )
   {
     $self->{res} = \@res;
-    croak( CLASS, " -- error sending data to server\n",
-	   Dumper(\@res) );
+    croak( CLASS, " -- error sending data to server" );
   }
-  
-  return map { { name => $_->{name}, frame => $_->{buf} } } @res;
 }
 
 sub _Get
@@ -229,11 +276,17 @@ sub _Get
   if ( grep { defined $_->{message} } @res )
   {
     $self->{res} = \@res;
-    croak( CLASS, " -- error sending data to server\n",
-	   Dumper(\@res) );
+    croak( CLASS, " -- error sending data to server" );
   }
   
-  return map { { name => $_->{name}, buf => $_->{buf} } } @res;
+  if ( 1 == $self->{xpa_attrs}{max_servers} )
+  {
+    return $res[0]->{buf};
+  }
+  else
+  {
+    return map { { name => $_->{name}, buf => $_->{buf} } } @res;
+  }
 }
 
 
@@ -294,6 +347,33 @@ spelling out how to do this.
 
 =head1 METHODS
 
+=head2 Constants
+
+Predefined constants may be imported when the B<Image::DS9> package
+is loaded, by specifying one or more of the following tags:
+C<frame_ops>, C<tile_ops>, C<all>.  For example:
+
+	use Image::DS9 qw( :frame_ops :tile_ops );
+
+The C<frame_ops> group imports
+C<FOP_NEW>,
+C<FOP_DELETE>,
+C<FOP_RESET>,
+C<FOP_REFRESH>, 
+C<FOP_CENTER>, 
+C<FOP_HIDE>,
+C<FOP_SHOW>.
+
+The C<tile_ops> group imports
+C<T_GRID>,
+C<T_COLUMN>,
+C<T_ROW>.
+
+The C<all> group imports all of the above groups, as well as
+C<ON>,
+C<OFF>.
+
+
 =head2 Return values
 
 Because a single B<Image::DS9> object may communicate with multiple
@@ -315,6 +395,11 @@ yields
 	        ];
 
 Note the end of line character in the colormap name.
+
+B<However>, if the object was created with B<max_servers> set to 1,
+it returns the contents of C<buf> directly, i.e.
+
+	$colormap = $dsp->colormap;
 
 =head2 Error Returns
 
@@ -395,7 +480,28 @@ number.
 
   $dsp->blink( $state );
 
-Turn frame blinking on or off.  B<$state> may be C<on>, C<off>, C<0>, C<1>.
+Turn frame blinking on or off.  B<$state> may be the constants 
+C<ON>, C<OFF>, C<'yes'>, C<'no'>, C<0>, C<1>.  If called without a value,
+it will return the current status of frame blinking.
+
+=item tile
+
+  $dsp->tile( $state );
+
+Control tiling of frames.  Set C<$state> to either C<ON> or C<OFF> (or
+C<'yes'>, C<'no'>, or C<1>, C<0>) to turn tiling on or off.  If called
+without a value, it will return the current status of frame blinking.
+
+=item tile_mode
+
+  $dsp->tile_mode( $mode );
+
+The tiling mode may be specified by setting C<$mode> to C<T_GRID>,
+C<T_COLUMN>, or C<T_ROW>.  These constants are available if the
+C<tile_op> tags are imported.  Otherwise, use C<'mode grid'>, c<'mode
+column'>, or C<'mode row'>.  If called without a value, it will return
+the current tiling mode.
+
 
 =item colormap
 
@@ -417,19 +523,10 @@ will contain the colormap name.
 Command B<DS9> to do frame operations.  Frame operations are nominally
 strings.  As B<DS9> will interpret any string which isn't a frame operation
 as the name of frame to switch to (or create, if necessary), B<Image::DS9>
-provides constants for the standard operations to prevent typos.
-If the B<Image::DS9> package is loaded as
-
-	use Image::DS9 qw( :frame_ops );
-
-then the following set of constants is loaded:
-C<FOP_NEW>,
-C<FOP_DELETE>,
-C<FOP_RESET>,
-C<FOP_REFRESH>, 
-C<FOP_CENTER>, 
-C<FOP_HIDE>. Otherwise, use the strings C<'new'>, C<'delete'>, C<'reset'>
-C<'refresh'>, C<'center'>, C<'hide'>.
+provides constants for the standard operations to prevent typos.  See
+the L<Constants> section.
+Otherwise, use the strings C<'new'>, C<'delete'>, C<'reset'>
+C<'refresh'>, C<'center'>, C<'hide'>, C<'show'>.
 
 To load a particular frame, specify the frame name as the operator.
 

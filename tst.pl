@@ -1,6 +1,8 @@
+#!/proj/axaf/bin/perl -w
+
+use Data::Dumper;
 use PDL;
-use blib '.';
-use Image::DS9 qw( :frame_ops );
+use Image::DS9 qw( :all );
 
 my $ds9 = new Image::DS9;
 
@@ -14,9 +16,11 @@ $k = zeroes(double, 100, 100)->rvals;
 
 $ds9->array( $k );
 
-$ds9->blink(1);
+$ds9->blink( ON );
 
-	use Data::Dumper;
-	my @colormaps = $ds9->colormap;
-	print Dumper \@colormaps;
+$ds9->tile( ON );
+
+$ds9->tile_mode( T_ROW );
+$ds9->tile_mode( T_COLUMN );
+print "colormap = ", $ds9->colormap, "\n";
 
