@@ -1213,14 +1213,14 @@ sub wcs
 	my ( $key, $val );
 	my $wcs;
 
-	$wcs .= "$key $val\n"
+	$wcs .= uc($key) . " $val\n"
 	  while( ($key, $val ) = each %$buf );
 
 	$self->Set( "wcs $what", $wcs );
       }
 
       # turn array into string
-      elsif ( 'HASH' eq ref $buf )
+      elsif ( 'ARRAY' eq ref $buf )
       {
 	my $wcs = join( "\n", @$buf ) . "\n";
 	$self->Set( "wcs $what", $wcs );
@@ -1361,13 +1361,13 @@ sub Set
   if ( grep { defined $_->{message} } values %res )
   {
     $self->{res} = \%res;
-    croak( __PACKAGE__, " -- error sending data to server" );
+    croak( __PACKAGE__, ": error sending data to server" );
   }
 
   if ( keys %res < $self->{min_servers} )
   {
     $self->{res} = \%res;
-    croak( __PACKAGE__, " -- fewer than ", $self->{min_servers}, 
+    croak( __PACKAGE__, ": fewer than ", $self->{min_servers}, 
 	   " server(s) responded" )
   }
 }
@@ -1422,13 +1422,13 @@ sub _Get
   if ( grep { defined $_->{message} } values %res )
   {
     $self->{res} = \%res;
-    croak( __PACKAGE__, " -- error sending data to server" );
+    croak( __PACKAGE__, ": error sending data to server" );
   }
   
   if ( keys %res < $self->{min_servers} )
   {
     $self->{res} = \%res;
-    croak( __PACKAGE__, " -- fewer than ", $self->{min_servers},
+    croak( __PACKAGE__, ": fewer than ", $self->{min_servers},
 	   " servers(s) responded" )
   }
 
