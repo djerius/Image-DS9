@@ -3,7 +3,12 @@ Revision history for Perl extension Image::DS9.
 0.13  Tue Oct 30 00:24:14 EST 2001
 	- results buffer splitting didn't ignore leading white space,
 	  leading to extra leading elements in the returned array.
-	  fixed.
+	- added pan function
+	- added regions load and save options
+	- scale(S_limits) wasn't calling _Get properly to return the limits.
+	- wcs query had wrong value of res_wanthash in _Get call
+	- DS9 v2.1 uses 'cmap' instead of 'colormap'.  I've switched
+	  over to 'cmap' since everyone should upgrade to DS9 v2.1.
 
 0.12  Mon Oct 22 10:18:27 EDT 2001
 	- removed definitions of TRUE and FALSE; was causing Export problems.

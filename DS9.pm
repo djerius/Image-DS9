@@ -251,7 +251,7 @@ use constant B_to_fit => 'to fit';
 
 BEGIN
 {
-  my @symbols = qw( B_about B_buffersize B_colsff B_factor B_filter
+  my @symbols = qw( B_about B_buffersize B_cols B_factor B_filter
 		 B_function B_average B_sum B_fit);
   $EXPORT_TAGS{bin} = \@symbols;
 
@@ -346,7 +346,7 @@ sub colormap
   
   unless ( defined $colormap )
   {
-    return $self->_Get( 'colormap', 
+    return $self->_Get( 'cmap', 
 		      { chomp => 1, res_wanthash => wantarray() } );
   }
   
@@ -355,19 +355,19 @@ sub colormap
     if ( defined $state )
     {
       $state = str2bool(bool2str($state));
-      $self->Set( "colormap invert $state" );
+      $self->Set( "cmap invert $state" );
     }
     else
     {
       return 
-	str2bool($self->_Get( 'colormap invert',
+	str2bool($self->_Get( 'cmap invert',
 			    { chomp => 1, res_wanthash => wantarray() } ));
     }
   }
   
   else
   {
-    $self->Set( "colormap $colormap" );
+    $self->Set( "cmap $colormap" );
   }
 }
 
@@ -802,11 +802,13 @@ use constant Rg_deleteall   => 'deleteall';
 use constant Rg_delim       => 'delim';
 use constant Rg_ds9         => 'ds9';
 use constant Rg_file        => 'file';
+use constant Rg_load        => 'load';
 use constant Rg_format      => 'format';
 use constant Rg_moveback    => 'moveback';
 use constant Rg_movefront   => 'movefront';
 use constant Rg_nl          => 'nl';
 use constant Rg_pros        => 'pros';
+use constant Rg_save        => 'save';
 use constant Rg_saoimage    => 'saoimage';
 use constant Rg_saotng      => 'saotng';
 use constant Rg_selectall   => 'selectall';
@@ -826,12 +828,14 @@ BEGIN
 		   Rg_ds9
 		   Rg_file
 		   Rg_format
+		   Rg_load
 		   Rg_moveback
 		   Rg_movefront
 		   Rg_nl
 		   Rg_pros
 		   Rg_saoimage
 		   Rg_saotng
+		   Rg_save
 		   Rg_selectall
 		   Rg_selectnone
 		   Rg_semicolon
@@ -925,7 +929,10 @@ BEGIN
       $self->Set( "regions $what" );
     }
     
-    elsif ( Rg_file eq $what )
+    elsif ( Rg_file eq $what || 
+	    Rg_load eq $what ||
+	    Rg_save eq $what
+	  )
     {
       croak( __PACKAGE__, "->regions($what) requires one argument\n" )
 	unless  1 == @_;
@@ -1101,7 +1108,7 @@ BEGIN
       unless ( defined $what )
       {
 	my %results = $self->_Get( 'scale limits', 
-				 { chomp => 1, res_wanthash => wantarray() } );
+				 { chomp => 1, res_wanthash => 1 } );
 	
 	for my $res ( values %results )
 	{
@@ -1293,7 +1300,8 @@ sub wcs
   if ( ! defined $what ||
        ( WCS_align eq $what || WCS_format eq $what ) && 0 == @_ )
   {
-    return $self->_Get( "wcs $what", { chomp => 1, res_wanthash => 1 } );
+    $what ||= '';
+    return $self->_Get( "wcs $what", { chomp => 1, res_wanthash => wantarray() } );
   }
        
   # set the coordinate system
@@ -1406,6 +1414,54 @@ sub wcs
     croak( __PACKAGE__, "->wcs: unknown command `$what'\n" );
   }
 
+}
+
+#####################################################################
+
+sub pan
+{
+  my $self = shift;
+  my $what = shift;
+  
+  unless ( defined $what )
+  {
+    my %results = $self->_Get( "pan", 
+			     { chomp => 1, res_wanthash => 1 } );
+    
+    for my $res ( values %results )
+    {
+      $res->{buf} = _splitbuf( $res->{buf} );
+    }
+    
+    unless ( wantarray() )
+    {
+      my ( $server ) = keys %results;
+      return $results{$server}{buf};
+    }
+    
+    else
+    {
+      return %results;
+    }
+  }
+  
+  unless ( $what eq 'abs' || $what eq 'rel' )
+  {
+    push @_, $what;
+    $what = 'abs';
+  }
+  
+  my ( @coords ) = @_;
+  croak( __PACKAGE__, "->pan: not enough arguments\n" )
+    unless @coords >= 2;
+  
+  croak( __PACKAGE__, "->pan: too many arguments\n" )
+    unless @coords <= 3;
+  
+  croak( __PACKAGE__, "->pan: unknown coordinate system `$coords[2]'\n" )
+    if @coords == 3 && !$Coords{$coords[3]};
+  
+  $self->Set( join(' ', 'pan', $what eq 'abs' ? 'to' : (), @coords ) );
 }
 
 #####################################################################
@@ -2129,6 +2185,38 @@ The available constants and their values are:
 	OR_Y	=> 'y'
 	OR_XY	=> 'xy'
 
+=item pan
+
+  # get current pan value(s) for server(s)
+  $pan = $dsp->pan;
+  @pan = $dsp->pan;
+
+  # absolute pan
+  $dsp->pan( abs => $x, $y, [$coord] );
+  $dsp->pan( $x, $y, [ $coord ] );
+
+  # relative pan
+  $dsp->pan( rel => $x, $y, [$coord] );
+
+This changes the pan position for the current frame.  Available values
+for the coordinate system are (as constants, importable by the
+C<coord> tag):
+
+	Coord_fk4      => 'fk4'
+	Coord_fk5      => 'fk5'
+	Coord_icrs     => 'icrs'
+	Coord_galactic => 'galactic'
+	Coord_ecliptic => 'ecliptic'
+	Coord_linear   => 'linear'
+	Coord_image    => 'image'
+	Coord_physical => 'physical'
+
+To query the pan position, pass no coordinates to the method.  In
+scalar mode, a query will return a reference to an array containing
+the positions.  In list mode, it will return a hash, slightly modified
+from that described in the C</Return Value> section.  The C<buf>
+entries will be references to arrays.
+
 =item raise
 
   $dsp->raise()
@@ -2240,9 +2328,13 @@ in the query, but passing a hash reference:
   $regions = $dsp->regions( \%attr );
 
 
-To add regions from a file, use the C<Rg_file> tag:
+To add regions from a file, use the C<Rg_file> or C<Rg_load> tags:
 
   $dsp->regions( Rg_file, $file );
+
+To save regions to a file, use the C<Rg_save> tag:
+
+  $dsp->regions( Rg_save, $file );
 
 To add a region in a Perl variable, pass a reference to the variable:
 
@@ -2696,6 +2788,8 @@ well as
 	Rg_selectnone  => 'selectnone'
 	Rg_deleteall   => 'deleteall'
 	Rg_file        => 'file'
+	Rg_load	       => 'load'
+	Rg_save	       => 'save'
 
 	Rg_format      => 'format'
 	Rg_coord       => 'coord'
