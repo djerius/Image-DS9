@@ -6,7 +6,7 @@ versatile enough to be used with success by others.
 
 Image::DS9 is in a very embryonic state; it does not support all of DS9's
 features, and the API may change.  It requires the IPC::XPA module to
-communicate with ds9.  It is being developed to interoperate with PDL.
+communicate with ds9.
 
 For details on DS9, including the source (and binaries for some
 platforms), please refer to 
