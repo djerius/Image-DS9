@@ -4,6 +4,7 @@ LICENSE
 MANIFEST
 Makefile.PL
 README
+t/dss.t
 t/frames.t
 t/scale.t
 t/tile_mode.t
