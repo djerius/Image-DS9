@@ -392,6 +392,12 @@ C<T_GRID>,
 C<T_COLUMN>,
 C<T_ROW>.
 
+The C<file_ops> group imports
+C<FT_MosaicImage>,
+C<FT_MosaicImages>,
+C<FT_Mosaic>,
+C<FT_Array>.
+
 The C<all> group imports all of the above groups, as well as
 C<ON>,
 C<OFF>.
