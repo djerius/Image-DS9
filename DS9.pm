@@ -54,7 +54,7 @@ my @scale_ops = qw( S_linear S_ln S_log S_squared
 		scale => \@scale_ops,
 		all => [ @EXPORT_OK ],
 	       );
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 use Carp;
 use Data::Dumper;
@@ -105,7 +105,7 @@ sub _flatten_hash
       unless defined $self->{xpa};
 
     
-    $self->{xpa_attrs}{max_servers} = $self->nservers;
+    $self->{xpa_attrs}{max_servers} = $self->nservers || 1;
 
     $self->set_attrs($u_attrs);
 
@@ -374,15 +374,15 @@ sub Set
 {
   my ( $self, $cmd, $buf ) = @_;
 
-  my @res = $self->{xpa}->Set( $self->{Server}, $cmd, $buf, $self->{xpa_attrs} );
-  if ( grep { defined $_->{message} } @res )
+  $self->{res} = [
+    $self->{xpa}->Set( $self->{Server}, $cmd, $buf, $self->{xpa_attrs} ) ];
+  if ( grep { defined $_->{message} } @{$self->{res}} )
   {
-    $self->{res} = \@res;
     croak( CLASS, " -- error sending data to server" );
   }
 
   croak( CLASS, " -- fewer than ",$self->{min_servers}," server(s) responded" )
-    if @res < $self->{min_servers};
+    if @{$self->{res}} < $self->{min_servers};
 }
 
 sub Get

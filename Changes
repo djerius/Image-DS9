@@ -1,5 +1,11 @@
 Revision history for Perl extension Image::DS9.
 
+0.07  Thu May 11 13:48:37 EDT 2000
+	- max_servers could default to zero if no servers
+	  were running; this would cause problems later if
+	  one was started up.  it now defaults to at least one.
+	- $self->{res} is always updated after Set.
+
 0.06  Wed May 10 13:24:39 EDT 2000
 	- renamed frame ops once more
 	- renamed file ops to filetype
