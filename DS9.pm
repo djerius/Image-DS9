@@ -2,7 +2,9 @@ package Image::DS9;
 
 use strict;
 use warnings;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $use_PDL);
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+
+our $use_PDL;
 
 BEGIN {
   eval "use PDL::Core; use PDL::Types;"; 
@@ -49,7 +51,16 @@ sub _flatten_hash
 			res_wanthash => 1,
 			verbose => 0
 		      );
+
   my %def_xpa_attrs = ( max_servers => 1 );
+
+
+  my %def_cmd_attrs = (
+		        ResErrCroak => 0,
+			ResErrWarn => 0,
+			ResErrIgnore => 0
+		      );
+
 
   sub new
   {
@@ -62,16 +73,26 @@ sub _flatten_hash
     my $self = bless { 
 		      xpa => IPC::XPA->Open, 
 		      %def_obj_attrs,
-		      xpa_attrs => { %def_xpa_attrs},
+		      xpa_attrs => { %def_xpa_attrs },
+		      cmd_attrs => { %def_cmd_attrs },
 		      res => undef
 		     }, $class;
 
-    croak( __PACKAGE__, "->new -- error creating XPA object" )
+    croak( __PACKAGE__, "->new: error creating XPA object" )
       unless defined $self->{xpa};
 
     $self->{xpa_attrs}{max_servers} = $self->nservers || 1;
 
     $self->set_attrs($u_attrs);
+
+    $self->{cmd_attrs}{ResErrCroak} = 1
+      unless $self->{cmd_attrs}{ResErrWarn} || 
+	     $self->{cmd_attrs}{ResErrIgnore};
+	
+    croak( __PACKAGE__, "->new: inconsistent ResErrXXX attributes" )
+      unless 1 == (!!$self->{cmd_attrs}{ResErrCroak} +
+		   !!$self->{cmd_attrs}{ResErrWarn} +
+		   !!$self->{cmd_attrs}{ResErrIgnore});
 
     $self->wait( )
       if defined $self->{Wait};
@@ -84,19 +105,28 @@ sub _flatten_hash
     my $self = shift;
     my $u_attrs = shift;
 
+    my %ukeys = map { $_ => 1 } keys %$u_attrs;
+
     return unless $u_attrs;
-    $self->{xpa_attrs}{$_} = $u_attrs->{$_}
+    do { $self->{xpa_attrs}{$_} = $u_attrs->{$_}; delete $ukeys{$_} }
       foreach grep { exists $def_xpa_attrs{$_} } keys %$u_attrs;
 
-    $self->{$_} = $u_attrs->{$_} 
+    do { $self->{cmd_attrs}{$_} = $u_attrs->{$_}; delete $ukeys{$_} }
+      foreach grep { exists $def_cmd_attrs{$_} } keys %$u_attrs;
+
+    do { $self->{$_} = $u_attrs->{$_} ; delete $ukeys{$_} }
       foreach grep { exists $def_obj_attrs{$_} } keys %$u_attrs;
+
+    croak( __PACKAGE__, ": unknown attribute(s): ", 
+	   join( ', ', sort keys %ukeys ) )
+      if keys %ukeys;
   }
 
 }
 
 sub DESTROY
 {
-  $_[0]->{xpa}->Close;
+  $_[0]->{xpa}->Close if defined $_[0]->{xpa};
 }
 
 #####################################################################
@@ -169,7 +199,8 @@ sub wait
     {
       local $Carp::CarpLevel = $Carp::CarpLevel + 1; 
 
-      $cmd = Image::DS9::Command->new( 'array', { nocmd => 1 }, @_ );
+      $cmd = Image::DS9::Command->new( 'array', { %{$self->{cmd_attrs}},
+						  nocmd => 1 }, @_ );
     }
 
     defined $cmd
@@ -216,7 +247,8 @@ sub fits
 
   {
     local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-    $cmd = Image::DS9::Command->new( 'fits', {noattrs => 1}, @_ )
+    $cmd = Image::DS9::Command->new( 'fits', { %{$self->{cmd_attrs}},
+					       noattrs => 1}, @_ )
       or croak( __PACKAGE__, ":internal error: unknown method `fits'\n" );
   }
 
@@ -246,7 +278,8 @@ sub file
 
   { 
     local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-    $cmd = Image::DS9::Command->new( 'file', {noattrs => 1}, @_ )
+    $cmd = Image::DS9::Command->new( 'file', { %{$self->{cmd_attrs}},
+					       noattrs => 1}, @_ )
       or croak( __PACKAGE__, ":internal error: unknown method `file'\n" );
   }
   return $self->_get( $cmd )
@@ -413,8 +446,10 @@ sub AUTOLOAD
   my $self = shift;
   (my $sub = $AUTOLOAD) =~ s/.*:://;
 
+  $sub = 'cmap' if $sub eq 'colormap';
+
   local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-  my $cmd = Image::DS9::Command->new( $sub, {}, @_ )
+  my $cmd = Image::DS9::Command->new( $sub, {%{$self->{cmd_attrs}}}, @_ )
     or croak( __PACKAGE__, ": unknown method `$sub'\n" );
 
   $cmd->query ? 
@@ -427,5 +462,4 @@ sub AUTOLOAD
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
 1;
-__END__
 
