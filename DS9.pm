@@ -77,7 +77,7 @@ for my $op ( @ops )
 
 Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 use Carp;
 use Data::Dumper;
@@ -583,7 +583,7 @@ sub scale
     croak ( 'expected array ref for scale limit value' )
       unless 'ARRAY' eq ref($what);
     croak ( 'not enough values for scale limits' )
-      unless $#{$what} >= 2;
+      unless $#{$what} >= 1;
 
     $self->Set( "scale limits $what->[0] $what->[1]" );
   }

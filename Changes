@@ -1,5 +1,9 @@
 Revision history for Perl extension Image::DS9.
 
+0.09  Fri Sep  8 23:31:03 EDT 2000
+	- confused max index with number of elements in check
+	  for correct number of arguments for scale( 'limits' )
+
 0.08  Wed Aug  2 12:15:40 EDT 2000
         - made compatible with API change in IPC::XPA v0.04.
 	- _Get() now more flexible about chomping buf and messages;
