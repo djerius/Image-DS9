@@ -24,7 +24,6 @@ my @frame_ops = qw(
 		   FR_new
 		   FR_refresh
 		   FR_reset
-		   FR_show
 		   FR_first
 		   FR_next
 		   FR_prev
@@ -247,7 +246,6 @@ use constant FR_hide    => 'hide';
 use constant FR_new     => 'new';
 use constant FR_refresh => 'refresh';
 use constant FR_reset   => 'reset';
-use constant FR_show    => 'show';
 use constant FR_first	 => 'first';
 use constant FR_next	 => 'next';
 use constant FR_prev	 => 'prev';
@@ -255,15 +253,24 @@ use constant FR_last	 => 'last';
 
 sub frame
 {
-  my ( $self, $cmd ) = @_;
+  my $self = shift;
+  my $cmd = shift;
 
   unless( defined $cmd )
   {
     return $self->Get( 'frame' );
   }
 
+  elsif ( 'show' eq $cmd )
+  {
+    my $frame = shift;
+    $self->Set( "frame show $frame" );
+  }
+
   else
   {
+    croak( CLASS, '->frame -- too many arguments' )
+      if @_;
     $self->Set( "frame $cmd" );
   }
 
@@ -485,7 +492,6 @@ C<FR_hide>,
 C<FR_new>,
 C<FR_refresh>,
 C<FR_reset>,
-C<FR_show>,
 C<FR_first>,
 C<FR_next>,
 C<FR_prev>,
@@ -685,6 +691,7 @@ will contain the colormap name.
 =item frame
 
   $dsp->frame( $frame_op );
+  $dsp->frame( show => $frame );
   @frames = $dsp->frame;
 
 Command B<DS9> to do frame operations.  Frame operations are nominally
@@ -700,7 +707,6 @@ C<hide>,
 C<new>,
 C<refresh>,
 C<reset>,
-C<show>,
 C<first>,
 C<next>,
 C<prev>,
@@ -708,11 +714,16 @@ C<last>.
 
 To load a particular frame, specify the frame name as the operator.
 
+To show a frame which has been hidden, use the second form with
+the C<show> operator.
+
 For example,
 
 	$dsp->frame( FR_new );		# use the constant
 	$dsp->frame( 'new' );		# use the string literal
 	$dsp->frame( '3' );		# load frame 3
+	$dsp->frame( FR_hide );		# hide the current frame
+	$dsp->frame( show => 3 );	# show frame 3
 	$dsp->frame( FR_delete );	# delete the current frame
 
 If B<frame()> is called with no arguments, it returns a list of the

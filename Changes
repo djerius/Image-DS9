@@ -5,6 +5,7 @@ Revision history for Perl extension Image::DS9.
 	  were running; this would cause problems later if
 	  one was started up.  it now defaults to at least one.
 	- $self->{res} is always updated after Set.
+	- the frame show command was incorrectly implemented.
 
 0.06  Wed May 10 13:24:39 EDT 2000
 	- renamed frame ops once more
