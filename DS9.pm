@@ -3064,6 +3064,13 @@ B<DS9> is available at C<http://hea-www.harvard.edu/RD/ds9/>.
 
 B<XPA> is available at C<http://hea-www.harvard.edu/RD/xpa/>.
 
+=head1 LICENSE
+
+This software is released under the GNU General Public License.  You
+may find a copy at 
+
+   http://www.fsf.org/copyleft/gpl.html
+
 =head1 AUTHOR
 
 Diab Jerius ( djerius@cfa.harvard.edu )
