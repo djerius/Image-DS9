@@ -333,11 +333,13 @@ sub _Get
 
   if ( 1 == $self->{xpa_attrs}{max_servers} )
   {
+    chomp $res[0]->{buf};
     return $res[0]->{buf};
   }
   else
   {
-    return map { { name => $_->{name}, buf => $_->{buf} } } @res;
+    return map { chomp $_->{buf}; 
+	         { name => $_->{name}, buf => $_->{buf} } } @res;
   }
 }
 
