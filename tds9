@@ -1,0 +1,52 @@
+#!/proj/axaf/bin/perl
+
+use strict;
+use warnings;
+use PDL::Lite;
+use PDL::Core qw( zeroes double );
+
+use Image::DS9 qw( :all );
+
+
+my $dsp = new Image::DS9 { verbose => 1 };
+
+# only load DS9 if it's not already there...
+unless ( $dsp->nservers )
+{
+  system( 'ds9 -geometry 1040x680 &' );
+
+  $dsp->wait() or
+    die( "unable to connect to ds9\n" );
+}
+
+# fake an image
+my $k = zeroes(double, 100, 100)->rvals;
+my $j = 100 - $k;
+
+print "Deleting all frames...\n";
+$dsp->frame( delete => FR_all );
+
+$dsp->tile_mode( T_row );
+$dsp->display( D_tile );
+
+print "Loading first frame\n";
+$dsp->frame( FR_new );
+$dsp->array( $k );
+$dsp->zoom( 0 );
+
+
+print "Loading second frame\n";
+$dsp->frame( FR_new );
+$dsp->array($j);
+$dsp->scale( mode => S_zscale );
+$dsp->zoom(0);
+
+print "sending over some regions\n";
+$dsp->regions( Rg_deleteall );
+
+# note that this is being passed a reference, not a scalar!
+$dsp->regions( \"circle(46.588238,54.411762,20)" );
+
+print "grabbing the region:\n";
+my $region = $dsp->regions();
+print $region;
