@@ -71,7 +71,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 use Carp;
 use Data::Dumper;
@@ -1565,6 +1565,88 @@ BEGIN
 
 #####################################################################
 
+use constant DSS_name	=> 'name';
+use constant DSS_coord  => 'coord';
+use constant DSS_server => 'server';
+use constant DSS_survey => 'survey';
+use constant DSS_size   => 'size';
+
+use constant DSS_SAO	=> 'sao';
+use constant DSS_STSCI	=> 'stsci';
+use constant DSS_ESO	=> 'eso';
+
+use constant DSS_dss	=> 'dss';
+use constant DSS_dss2red	=> 'dss2red';
+use constant DSS_dss2blue	=> 'dss2blue';
+
+
+BEGIN
+{
+  my @symbols = qw( DSS_name DSS_coord DSS_server DSS_survey DSS_size 
+		    DSS_SAO DSS_STSCI DSS_ESO
+		    DSS_dss DSS_dss2red DSS_dss2blue );
+
+  $EXPORT_TAGS{dss} = \@symbols;
+}
+
+{
+  
+  # number of arguments for the various options
+  my %args = ( DSS_name, 1,
+	       DSS_coord, 2,
+	       DSS_server, 1,
+	       DSS_survey, 1,
+	       DSS_size, 2 );
+  sub dss
+  {
+    my $self = shift;
+    my $what = shift;
+    
+    croak( __PACKAGE__, "->dss: must specify keyword" )
+      unless defined $what;
+
+    croak( __PACKAGE__, "->dss: unknown keyword" )
+      unless defined $args{$what};
+    
+    # query?
+    if ( @_ == 0 )
+    {
+      my %results = $self->_Get( "dss $what", 
+			      { chomp => 1, res_wanthash => 1 } );
+
+      for my $res ( values %results )
+      {
+	$res->{buf} = _splitbuf( $res->{buf} )
+	  if $args{$what} > 1;
+      }
+
+      unless ( wantarray() )
+      {
+	my ( $server ) = keys %results;
+	return $results{$server}{buf};
+      }
+      
+      else
+      {
+	return %results;
+      }
+
+    }
+
+    # not a query, setting arguments
+    else
+    {
+      croak( __PACKAGE__, "->dss: incorrect number of arguments for `$what'" )
+	unless @_ == $args{$what};
+
+      # all is well, proceed with the argument setting
+      $self->Set( join( ' ', 'dss', $what, @_ ) );
+    }
+  }
+}
+
+#####################################################################
+
 sub Set
 {
   my ( $self, $cmd, $buf ) = @_;
@@ -2048,7 +2130,86 @@ C<D_blink>, C<D_tile> or C<D_single>.  For instance:
 
   print "We're blinking!\n" if D_blink eq $ds9->display;
 
+=item dss
 
+  # set something
+  $dsp->dss( $keyw, @args );
+
+  # query dss interface
+  $res = $dsp->dss( $keyw );
+  %res = $dsp->dss( $keyw );
+
+This controls B<ds9>'s DSS (Digital Sky Survey) interface. Various
+constants are available to guard against typos, importable via the
+C<dss> tag; see L</Constants>.
+
+The keywords are:
+
+	DSS_name   => 'name'
+	DSS_coord  => 'coord'
+	DSS_server => 'server'
+	DSS_survey => 'survey'
+	DSS_size   => 'size'
+
+
+When queried, some of the keywords may return more than one value.  In
+those cases, a query yields a reference to an array, not a scalar.
+For instance:
+
+	$res = $dsp->dss( DSS_coord );
+	($x, $y ) = @$res;
+
+returns a reference to an array, while
+
+	$res = $dsp->dss( DSS_server );
+
+returns a scalar.  Don't attempt to do
+
+	($x, $y ) = $dsp->dss( DSS_coord ); # ERROR DON"T DO THIS
+
+As it will return a full blown hash as documented in L</Return Values>.
+
+
+
+=over 8
+
+=item B<DSS_name>
+
+This takes a single argument, the name of the object.
+
+  $dsp->dss( DSS_name, 'A520' );
+
+=item B<DSS_coord>
+
+This takes two arguments, the right ascension and declination of the
+field to return.  Upon query, it returns the current DSS position as
+two values.
+
+=item B<DSS_server>
+
+This takes a single argument, the name of a DSS server.  These are
+available as constants:
+
+	DSS_SAO    => 'sao'
+	DSS_STSCI  => 'stsci'
+	DSS_ESO    => 'eso'
+
+=item B<DSS_survey>
+
+This takes the name of a survey as an argument.
+These are available as constants:
+
+	DSS_dss		=> 'dss'
+	DSS_dss2red	=> 'dss2red'
+	DSS_dss2blue	=> 'dss2blue'
+
+=item B<DSS_size>
+
+This takes as arguments the width and height (in that order) of
+the field to be retrieved.  Upon query, it returns the size as
+two values.
+  
+=back
 
 =item file
 
@@ -2746,6 +2907,24 @@ well as
 	D_tile   => 'tile'
 	D_single => 'single'
 	D_blink  => 'blink'
+
+
+=item dss
+
+	DSS_name   => 'name'
+	DSS_coord  => 'coord'
+	DSS_server => 'server'
+	DSS_survey => 'survey'
+	DSS_size   => 'size'
+
+	DSS_SAO	   => 'sao'
+	DSS_STSCI  => 'stsci'
+	DSS_ESO	   => 'eso'
+
+	DSS_dss    => 'dss'
+	DSS_dss2red	=> 'dss2red'
+	DSS_dss2blue	=> 'dss2blue'
+
 
 =item file
 

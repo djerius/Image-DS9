@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.15  Tue Jan 29 12:27:06 EST 2002
+        - added dss()
+
 0.14  Mon Jan 28 15:12:24 EST 2002
         - updated nservers() to track new IPC::XPA::Access API.
 
