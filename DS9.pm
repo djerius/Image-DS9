@@ -289,7 +289,7 @@ sub file
   else
   {
     $type ||= '';
-    $self->_Set( "frame $type $file" );
+    $self->_Set( "file $type $file" );
   }
 
 
