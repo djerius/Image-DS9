@@ -62,7 +62,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.103';
+$VERSION = '0.104';
 
 use Carp;
 use Data::Dumper;
@@ -1210,11 +1210,21 @@ sub wcs
       # turn hash into appropriate string
       elsif ( 'HASH' eq ref $buf )
       {
-	my ( $key, $val );
 	my $wcs;
 
-	$wcs .= uc($key) . " $val\n"
-	  while( ($key, $val ) = each %$buf );
+	while( my ($key, $val ) = each %$buf )
+	{
+	  # ensure that CTYPE value is surrounded by apostrophes
+	  if ( uc($key) =~ 'CTYPE' &&
+	       $val !~ /^'.*'$/ )
+	  {
+	    $wcs .= uc($key) . " '$val'\n"
+	  }
+	  else
+	  {
+	    $wcs .= uc($key) . " $val\n"
+	  }
+	}
 
 	$self->Set( "wcs $what", $wcs );
       }

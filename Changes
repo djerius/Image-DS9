@@ -1,5 +1,9 @@
 Revision history for Perl extension Image::DS9.
 
+0.103  Mon Aug 13 14:17:46 EDT 2001
+        - ensured that the CTYPE? WCS keywords are surrounded by 
+	  apostrophes
+
 0.103
 	- didn't create the wcs export tag
 
