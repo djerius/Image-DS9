@@ -62,7 +62,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.10';
+$VERSION = '0.102';
 
 use Carp;
 use Data::Dumper;
@@ -206,11 +206,12 @@ sub wait
     
     my $data = $image;
     
-    if ( $use_PDL && 'PDL' eq ref( $image ) )
+    if ( $use_PDL && ref( $image ) && UNIVERSAL::isa( $image, 'PDL' ))
     {
       $attrs{bitpix} = $map{$image->get_datatype};
       ($attrs{xdim}, $attrs{ydim}) = $image->dims;
       $data = ${$image->get_dataref};
+      $attrs{ydim} = 1 unless defined $attrs{ydim};
     }
     
     if ( exists $attrs{dim} )
@@ -774,10 +775,29 @@ use constant Rg_raw         => 'raw';
 
 BEGIN
 {
-  my @symbols = qw( Rg_movefront Rg_moveback Rg_selectall Rg_selectnone
-		    Rg_deleteall Rg_format Rg_coord Rg_coordformat 
-		    Rg_delim Rg_nl Rg_semicolon Rg_ds9 Rg_saotng
-		    Rg_saoimage Rg_pros Rg_return_fmt Rg_raw );
+  my @symbols = qw(
+		   Rg_coord
+		   Rg_coordformat
+		   Rg_deleteall
+		   Rg_delim
+		   Rg_ds9
+		   Rg_file
+		   Rg_format
+		   Rg_moveback
+		   Rg_movefront
+		   Rg_nl
+		   Rg_pros
+		   Rg_saoimage
+		   Rg_saotng
+		   Rg_selectall
+		   Rg_selectnone
+		   Rg_semicolon
+
+		   Rg_return_fmt
+		   Rg_raw
+		  );
+
+
   $EXPORT_TAGS{regions} = \@symbols;
   
   my %reg_fmts = map { $_, 1 } ( Rg_ds9, Rg_saotng, Rg_saoimage, Rg_pros );

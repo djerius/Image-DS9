@@ -1,5 +1,11 @@
 Revision history for Perl extension Image::DS9.
 
+0.102
+	- Forget Rg_file in export list
+0.101
+	- array() may now take a one-dimensional piddle
+	- cleaned up detection of piddles
+
 0.10
 	Externals:
 	- added invert option to colormap()
