@@ -1,5 +1,8 @@
 Revision history for Perl extension Image::DS9.
 
+0.106
+	- more aggressive cleaning of WCS keywords
+
 0.105
 	- colormap was incorrectly looking at $state
 	  instead of $colormap when looking for the inversion tag

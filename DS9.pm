@@ -62,7 +62,7 @@ Exporter::export_ok_tags($_) foreach keys %EXPORT_TAGS;
 # now, create a tag which will import all of the symbols
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-$VERSION = '0.105';
+$VERSION = '0.106';
 
 use Carp;
 use Data::Dumper;
@@ -1214,6 +1214,14 @@ sub wcs
 
 	while( my ($key, $val ) = each %$buf )
 	{
+	  # aggressively remove surrounding apostrophes
+	  $val =~ s/^'+//;
+	  $val =~ s/'+$//;
+
+	  # remove unnecessary blanks
+	  $val =~ s/^\s+//;
+	  $val =~ s/\s+$//;
+
 	  # ensure that CTYPE value is surrounded by apostrophes
 	  if ( uc($key) =~ 'CTYPE' &&
 	       $val !~ /^'.*'$/ )
