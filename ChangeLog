@@ -1,0 +1,412 @@
+2002-09-30 20:44  tag V0_18
+
+2002-09-30 20:44  dj
+
+	* Changes: [no log message]
+
+2002-09-30 20:40  dj
+
+	* DS9.pm, TODO: [no log message]
+
+2002-09-30 20:37  dj
+
+	* DS9.pm: - implement ResErrXXXX option parsing - catch bogus
+	  options - don't Close a non-existant xpa connection - translate
+	  colormap to cmap
+
+2002-09-30 20:35  dj
+
+	* DS9.pod: document ResErrXXX options
+
+2002-09-30 20:35  dj
+
+	* DS9/Command.pm: - pass command name to parser for error messages
+	  - implement ResErrXXXX options
+
+2002-09-30 20:34  dj
+
+	* DS9/Grammar.pm: - fix up bin cols return for 2 or three values
+	  (sort of) - incorrect contour save grammar - implemented contour
+	  load
+
+2002-09-30 20:33  dj
+
+	* DS9/Parser.pm: make croaks give command name
+
+2002-09-30 20:33  dj
+
+	* t/common.pl: start up test specific ds9
+
+2002-09-30 20:32  dj
+
+	* t/array.t: be smarter about checking for PDL
+
+2002-09-26 19:31  tag V0_17
+
+2002-09-26 19:31  dj
+
+	* README: [no log message]
+
+2002-09-26 18:59  dj
+
+	* DS9/Constants.pm: use correct default constant prefix
+
+2002-09-26 15:09  dj
+
+	* DS9/Grammar.pm, DS9/PConsts.pm, t/bin.t: all filter args are now
+	  stripped of blanks
+
+2002-09-26 11:59  dj
+
+	* MANIFEST, t/array.t, t/pdl.t: rename pdl.t to array.t
+
+2002-09-26 11:56  dj
+
+	* DS9.pm, t/cursor.t, t/fits.t, t/grid.t, t/lower.t, t/pdl.t,
+	  t/raise.t, t/version.t: test fixups
+
+2002-09-25 17:51  dj
+
+	* t/pdl.t: [no log message]
+
+2002-09-25 17:20  dj
+
+	* Changes, DS9.pm, DS9.pod, MANIFEST, MANIFEST.SKIP, README, TODO,
+	  m31.fits.gz, snooker.fits, snooker.fits.gz, snooker.grid,
+	  snooker.img.fits.gz, test.pl, DS9/Command.pm, DS9/Constants.pm,
+	  DS9/Grammar.pm, DS9/OldConstants.pm, DS9/PConsts.pm,
+	  DS9/Parser.pm: lots of changes; updates to tests, constants
+
+2002-09-25 17:19  dj
+
+	* t/: bin.t, blink.t, cmap.t, contour.t, crosshair.t, cursor.t,
+	  dss.t, file.t, fits.t, frame.t, grid.t, iconify.t, lower.t,
+	  minmax.t, mode.t, nameserver.t, orient.t, page.t, pan.t, pdl.t,
+	  pixeltable.t, print.t, raise.t, regions.t, rotate.t, scale.t,
+	  single.t, tile.t, tile_mode.t, version.t, view.t, wcs.t, zoom.t,
+	  common.pl, frames.t: [no log message]
+
+2002-09-23 18:47  tag V0_16
+
+2002-09-23 18:47  dj
+
+	* m31.fits.gz, snooker.fits, snooker.grid, snooker.img.fits.gz,
+	  DS9.pod: [no log message]
+
+2002-09-23 18:44  dj
+
+	* Changes, README: [no log message]
+
+2002-09-23 18:41  dj
+
+	* Changes: [no log message]
+
+2002-09-23 18:35  dj
+
+	* Changes, DS9.pm, MANIFEST, MANIFEST.SKIP, Makefile.PL, README,
+	  test.pl: now uses a table driven parser to generate the methods
+	  and data conversion between Perl and DS9.
+
+	  realized the futility of keeping the docs up-to-date in parallel
+	  with DS9.  Now just list the options supported, rather than
+	  duplicate the DS9 docs.
+
+	  the display() and tile_mode() methods are no longer supported.
+	  display() was an attempt to unify tile, blink, and single in a
+	  clean way.  I've decided to just track the actual XPA access
+	  methods rather than foist my view of how things should tie
+	  together. So, display() should be replaced with the appropriate
+	  calls to tile(), blink(), or single().  tile_mode() was really
+	  tile() all along...
+
+	  earlier versions of this package had a gadzillion constants for
+	  all of the commands and subcommands and enumerated values.  this
+	  was a real mess.  the constants are now in their own package, and
+	  are deprecated.
+
+2002-08-30 20:01  dj
+
+	* DS9.pm: checking wrong element in array for coords value in pan
+
+2002-04-12 16:58  tag V0_15
+
+2002-04-12 16:58  dj
+
+	* DS9.pm: [no log message]
+
+2002-01-29 21:27  dj
+
+	* MANIFEST: [no log message]
+
+2002-01-29 13:25  dj
+
+	* t/dss.t: [no log message]
+
+2002-01-29 12:34  dj
+
+	* Changes, DS9.pm, README: added dss()
+
+2002-01-29 10:03  tag V0_14
+
+2002-01-29 10:03  dj
+
+	* MANIFEST, MANIFEST.SKIP: [no log message]
+
+2002-01-28 15:12  dj
+
+	* Changes, DS9.pm: updated nservers() to track new IPC::XPA::Access
+	  API.
+
+2002-01-11 10:01  tag V0_13
+
+2002-01-11 10:01  dj
+
+	* LICENSE, MANIFEST, MANIFEST.SKIP, README, ds9.docs, tds9, tst.pl:
+	  [no log message]
+
+2002-01-11 09:42  dj
+
+	* Changes, DS9.pm, README: [no log message]
+
+2001-10-30 00:26  dj
+
+	* Changes, DS9.pm: results buffer splitting didn't ignore leading
+	  white space, leading to extra leading elements in the returned
+	  array.  fixed.
+
+2001-10-22 10:18  dj
+
+	* Changes: [no log message]
+
+2001-10-22 10:18  dj
+
+	* DS9.pm: removed definitions of TRUE and FALSE; was causing Export
+	  problems
+
+2001-10-12 13:30  tag V0_11
+
+2001-10-12 13:30  dj
+
+	* Changes, DS9.pm, t/scale.t: implemented scale datasec
+
+2001-10-11 19:02  dj
+
+	* t/: frames.t, tile_mode.t: new tests
+
+2001-10-11 19:02  dj
+
+	* Changes, DS9.pm, MANIFEST, Makefile.PL: - frame hide now takes an
+	  argument (so can do hide all) - frame all implemented so can get
+	  list of all frames - updated tile_mode so that one can set/get
+	  the grid mode attributes.
+
+2001-08-14 12:23  tag V0_106
+
+2001-08-14 12:23  dj
+
+	* Changes, DS9.pm:	- more aggressive cleaning of WCS keywords
+
+2001-08-13 14:57  tag V0_105
+
+2001-08-13 14:57  dj
+
+	* Changes, DS9.pm:	- colormap was incorrectly looking at
+	  $state
+		    instead of $colormap when looking for the inversion tag
+
+2001-08-13 14:18  tag V0_104
+
+2001-08-13 14:18  dj
+
+	* Changes: [no log message]
+
+2001-08-13 14:18  dj
+
+	* Changes, DS9.pm:	   - ensured that the CTYPE? WCS keywords
+	  are surrounded by
+		    apostrophes
+
+2001-07-20 19:57  tag V0_103
+
+2001-07-20 19:57  dj
+
+	* DS9.pm: [no log message]
+
+2001-07-20 18:52  dj
+
+	* DS9.pm: [no log message]
+
+2001-07-20 18:50  dj
+
+	* Changes, DS9.pm: didn't create the wcs export tag
+
+2001-03-14 19:25  tag V0_102
+
+2001-03-14 19:25  dj
+
+	* Changes, DS9.pm: [no log message]
+
+2001-02-20 18:17  tag V0_10
+
+2001-02-20 18:17  dj
+
+	* tds9: [no log message]
+
+2001-02-20 18:00  dj
+
+	* tds9: [no log message]
+
+2001-02-20 17:59  dj
+
+	* Changes, DS9.pm: Externals: - added invert option to colormap() -
+	  added save option to file() - added bin() - added crosshair() -
+	  added cursor() - added lower() - added raise() - added regions()
+	  - added wcs() - added view() - renamed T_Grid, T_Column, and
+	  T_Row to T_grid, T_column,   T_row
+
+	  - iconify() didn't return a true/false value (it directly
+	  returned what DS9 sent it).  - bugs fixed in display() code for
+	  queries which had errors - fixed up return for scale(S_limits) to
+	  be more consistent
+
+	  - Set() and Get() (low level access to XPA channel) are   now
+	  documented
+
+	  Internals: - cleaned up module setup code and creation of export
+	  tags - lots more error checking of arguments. this may make
+	  following updates to DS9 a little more work, but makes   it
+	  easier for users of this module - improvements to documentation
+
+2000-09-08 23:32  tag V0_09
+
+2000-09-08 23:32  dj
+
+	* Changes, DS9.pm: confused max index with number of elements in
+	  check for correct number of arguments for scale( 'limits' )
+
+2000-08-02 18:51  tag V0_08
+
+2000-08-02 18:51  dj
+
+	* DS9.pm: [no log message]
+
+2000-08-02 18:39  dj
+
+	* Changes, DS9.pm, tst.pl: [no log message]
+
+2000-08-02 12:18  dj
+
+	* Changes, DS9.pm, tst.pl: [no log message]
+
+2000-07-05 11:35  tag V0_07
+
+2000-07-05 11:35  dj
+
+	* CONTRIB: [no log message]
+
+2000-07-05 10:54  dj
+
+	* README: [no log message]
+
+2000-07-05 10:50  dj
+
+	* LICENSE, MANIFEST, README: [no log message]
+
+2000-05-11 16:21  dj
+
+	* Changes, DS9.pm:	- the frame show command was incorrectly
+	  implemented.
+
+2000-05-11 13:49  dj
+
+	* Changes, DS9.pm:	- max_servers could default to zero if no
+	  servers
+		    were running; this would cause problems later if
+		    one was started up.  it now defaults to at least one.
+		  - $self->{res} is always updated after Set.
+
+2000-05-10 13:27  tag V0_06
+
+2000-05-10 13:27  dj
+
+	* Changes, DS9.pm:	- renamed frame ops once more
+		  - renamed file ops to filetype
+		  - removed tile() and blink()
+		  - move _Set() and _Get to Set() and Get(); no docs yet
+		  - added display(), scale(), zoom()
+		  - returned buffers from Get are now chomped
+
+2000-05-09 17:52  dj
+
+	* DS9.pm: more renaming of ops tags.
+
+2000-05-09 17:48  dj
+
+	* DS9.pm: chomp return buf, for convenience
+
+2000-05-09 11:37  tag V0_05
+
+2000-05-09 11:37  dj
+
+	* Changes, DS9.pm:	- added more frame op tags
+		  - made op tags more readable (lowercased)
+		  - added set_attrs method (not yet documented)
+		  - set max_servers to nservers() in the constructure
+		  - fixed many stupid details I forgot when adding the file
+	  method
+
+2000-05-08 20:05  dj
+
+	* DS9.pm: [no log message]
+
+2000-05-08 19:55  dj
+
+	* DS9.pm: [no log message]
+
+2000-05-08 19:43  dj
+
+	* DS9.pm: documentation changes
+
+2000-05-08 19:30  tag V0_04
+
+2000-05-08 19:30  dj
+
+	* Changes, DS9.pm:	- added file method
+
+2000-05-04 10:04  tag V0_03
+
+2000-05-04 10:04  dj
+
+	* Changes, DS9.pm: added min_servers check & croak
+
+2000-05-03 21:55  dj
+
+	* GNUmakefile, INSTALL: [no log message]
+
+2000-05-03 21:18  dj
+
+	* DS9.pm, Makefile.PL: [no log message]
+
+2000-05-02 11:33  dj
+
+	* Changes, DS9.pm: revised check for PDL to be cleaner
+
+2000-04-26 15:21  dj
+
+	* Changes, DS9.pm, tst.pl:	- added tile and tile_mode.
+		  - if max_server == 1, return nicer output from retrieves.
+
+2000-04-25 15:17  tag V0_01
+
+2000-04-25 15:17  tag initial
+
+2000-04-25 15:17  dj
+
+	* Changes, DS9.pm, MANIFEST, Makefile.PL, ds9.docs, test.pl,
+	  tst.pl: Initial revision
+
+2000-04-25 15:17  dj
+
+	* Changes, DS9.pm, MANIFEST, Makefile.PL, ds9.docs, test.pl,
+	  tst.pl: [no log message]
+
