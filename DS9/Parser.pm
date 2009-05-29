@@ -204,7 +204,7 @@ sub _parse_attr
 
   while ( my $spec = shift @$specs )
   {
-    if ( $spec =~ /^-(.*)/ )
+    if ( $spec =~ /^-(o|a)/ )
     {
       my $op = $1;
 
