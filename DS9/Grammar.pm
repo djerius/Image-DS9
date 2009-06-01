@@ -241,7 +241,7 @@ our %Grammar =
 
 #------------------------------------------------------
 
-   dss =>
+   dsssao =>
    [
     [
      ['name'],
@@ -249,23 +249,77 @@ our %Grammar =
     ],
 
     [
-     ['coordinate'],
+     ['coord'],
      { args => [ COORD_RA, COORD_DEC ] }
-    ],
-
-    [
-     ['server'],
-     { args => [ ENUM( 'sao', 'stsci', 'eso', ) ] }
-    ],
-
-    [
-     ['survey'],
-     { args => [ ENUM( 'dss', 'dss2red', 'dss2blue' ) ] }
     ],
 
     [
      ['size'],
      { args => [ FLOAT, FLOAT ] }
+    ],
+
+   ],
+
+#------------------------------------------------------
+
+   dsseso =>
+   [
+    [
+     ['name'],
+     { args => [ STRING ] }
+    ],
+
+    [
+     ['coord'],
+     { args => [ COORD_RA, COORD_DEC ] }
+    ],
+
+    [
+     ['survey'],
+     { args => [ ENUM( 'dss', 'dss2-red', 'dss2-blue', 'dss2-infrared' ) ] }
+    ],
+
+    [
+     ['size'],
+     { args => [ FLOAT, FLOAT ] }
+    ],
+
+   ],
+
+#------------------------------------------------------
+
+   dssstsci =>
+   [
+    [
+     ['name'],
+     { args => [ STRING ] }
+    ],
+
+    [
+     ['coord'],
+     { args => [ COORD_RA, COORD_DEC ] }
+    ],
+
+    [
+     ['size'],
+     { args => [ FLOAT, FLOAT ] }
+    ],
+
+    [
+     ['survey'],
+     { args => [ ENUM( qw{ poss2ukstu_red
+			   poss2ukstu_ir
+			   poss2ukstu_blue
+			   poss1_blue
+			   poss1_red
+			   all
+			   quickv
+			   phase2_gsc2
+			   phase2_gsc1
+		     }
+		     )
+	       ]
+     }
     ],
 
    ],

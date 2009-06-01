@@ -5,7 +5,7 @@ use Test::More;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 3 ) ;}
+BEGIN { plan( tests => 7 ) ;}
 
 require 't/common.pl';
 
@@ -13,11 +13,23 @@ require 't/common.pl';
 my $ds9 = start_up();
 
 test_stuff( $ds9, (
-		   dss =>
+		   dsssao =>
 		   [
 		    size => [10,10],
-		    server => 'stsci',
-		    survey => 'dss2blue',
+		    name => 'NGC5846'
 		   ],
+
+		   dsseso =>
+		   [
+		    size => [10,10],
+		    name => 'NGC5846',
+		   ],
+
+		   dssstsci =>
+		   [
+		    size => [10,10],
+		    survey => 'all',
+		    name => 'NGC5846',
+		   ]
 		  ) );
 
