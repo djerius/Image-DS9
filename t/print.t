@@ -5,7 +5,7 @@ use Test::More;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 17 ) ;}
+BEGIN { plan( tests => 15 ) ;}
 
 require 't/common.pl';
 
