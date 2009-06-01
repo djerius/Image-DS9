@@ -33,9 +33,12 @@ ok( 3 == $ds9->frame(), "frame prev" );
 $ds9->frame( 'next' );
 ok( 4 == $ds9->frame(), "frame next" );
 
+# avoid strange timing crash on some X servers
+sleep(1);
+
 $ds9->frame( 'delete' );
-ok( 1 == $ds9->frame(), "frame delete" );
+ok( 3 == $ds9->frame(), "frame delete" );
 
 $ds9->frame( 'new' );
-ok( 2 == $ds9->frame(), "frame new" );
+ok( 5 == $ds9->frame(), "frame new" );
 
