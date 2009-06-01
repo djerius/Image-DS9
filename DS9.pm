@@ -302,6 +302,29 @@ sub file
 
 #####################################################################
 
+sub version
+{
+    my $self = shift;
+
+    my $cmd;
+    {
+	local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+	$cmd = Image::DS9::Command->new( 'version', { %{$self->{cmd_attrs}},
+						  noattrs => 1}, @_ )
+	  or croak( __PACKAGE__, ":internal error: unknown method `version'\n" );
+    }
+
+    my $version = $self->_get( $cmd );
+    $version =~ s/^(\S+)\s+//;
+
+    return $version;
+}
+
+
+
+
+#####################################################################
+
 sub Set
 {
   my $self = shift;
