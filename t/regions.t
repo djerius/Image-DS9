@@ -53,6 +53,8 @@ $ds9->frame( 'center' );
 my $coords = $ds9->pan( 'wcs', 'fk5', 'sexagesimal' );
 
 my $region = "fk5;text($coords->[0],$coords->[1]) # color=yellow text={Hello}";
+my $expected_region = "fk5\n# text(00:42:44.477,+41:16:04.53) color=yellow text={Hello}";
+
 eval { 
   $ds9->regions( $region );
 };
@@ -73,12 +75,13 @@ $ds9->regions( strip => 0 );
 
 
 my $found = 0;
-foreach ( split("\n", $ds9->regions ) )
-{
-  next if /^\#/;
-  next if /^global/;
-  do { $found = 0; last } if $found;
-  $found = $region eq $_;
-  last unless $found;
-}
-ok( $found, "regions get" );
+my @lines = split("\n", $ds9->regions );
+
+# remove header lines
+shift @lines while $lines[0] =~ /^#/;
+
+# next line should list attributes
+shift @lines if $lines[0] =~ /^global/;
+
+# and the rest should match the expected region defined above.
+is( join("\n", @lines), $expected_region, "regions get" );
