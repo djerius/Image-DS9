@@ -17,7 +17,17 @@ test_stuff( $ds9, (
 		   pixeltable =>
 		   [
 		    [] => 1,
-		    [] => 0,
 		   ],
 		  ) );
 
+
+SKIP: {
+      skip '5.6.3 has now untestable behavior for pixeltable', 1, if $ds9->version eq '5.6.3';
+
+test_stuff( $ds9, (
+		   pixeltable =>
+		   [
+		    [] => 0,
+		   ],
+		  ) );
+}
