@@ -1,11 +1,10 @@
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-WriteMakefile(
-    'NAME'		=> 'Image::DS9',
-    'VERSION_FROM'	=> 'DS9.pm', # finds $VERSION
-    'PMLIBDIRS'		=> [ 'DS9' ],
-    'PREREQ_PM'		=> { IPC::XPA => 0.08,
-			     Test::More => 0.31,
-			   },
-);
+use inc::Module::Install;
+
+name	'Image-DS9';
+all_from 'DS9.pm';
+
+requires 'IPC::XPA' => '0.08';
+test_requires Test::More => '0.31';
+requires_external_bin 'ds9';
+
+WriteAll;
