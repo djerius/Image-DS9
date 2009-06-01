@@ -19,7 +19,7 @@ test_stuff( $ds9, (
 		    about => [ 0.023, 0.023 ],
 		    buffersize => 256,
 		    cols => [ qw (rt_x rt_y ) ],
-		    factor => 0.050,
+		    factor => [ 0.050, 0.01 ],
 		    depth => 1,
 		    filter => 'rt_time > 0.5',
 		    function => 'average',

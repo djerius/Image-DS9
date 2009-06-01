@@ -71,7 +71,8 @@ our %Grammar =
 
     [
      ['factor'],
-     { args => [ FLOAT ] }
+     { args => [ FLOAT, FLOAT ], rvals => [ ARRAY ] },
+     { args => [ FLOAT ], rvals => [ ARRAY ] }
     ],
 
     [
