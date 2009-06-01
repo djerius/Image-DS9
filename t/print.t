@@ -24,8 +24,6 @@ test_stuff( $ds9, (
 		    palette => 'rgb',
 		    level => 1,
 		    level => 2,
-		    interpolate => 0,
-		    interpolate => 1,
 		    resolution => 53,
 		    resolution => 72,
 		    resolution => 75,

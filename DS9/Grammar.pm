@@ -832,11 +832,6 @@ our %Grammar =
     ],
 
     [
-     ['interpolate'],
-     { args => [ BOOL ] },
-    ],
-
-    [
      ['resolution'],
      { args => [ ENUM( qw( 53 72 75 150 300 600  )) ] },
     ],
