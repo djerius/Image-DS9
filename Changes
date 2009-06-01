@@ -1,5 +1,9 @@
 Revision history for Perl extension Image::DS9.
 
+0.181  Mon Jun  1 11:34:42 EDT 2009
+        - tests now pass against ds9 5.6.3.  They have not been extended
+	  to match all of the new functionality, but at least they pass.
+
 0.18  Mon Sep 30 20:37:37 EDT 2002
         - added ResErrXXX options
 	- fixed contour save/load grammar

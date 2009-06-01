@@ -18,7 +18,7 @@ require Exporter;
 # export nothing by default
 @EXPORT = qw( );
 
-$VERSION = '0.18';
+$VERSION = '0.181';
 
 use Carp;
 use IPC::XPA;
