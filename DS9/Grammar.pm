@@ -546,6 +546,20 @@ our %Grammar =
     ],
 
     [
+     ['center'],
+     { query => QNONE },
+     { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
+    ],
+
+    [
+     ['clear'],
+     { query => QNONE },
+     { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
+    ],
+
+    [
      ['delete'],
      { query => QNONE },
      { args => [ INT ], query => QNONE },
@@ -554,27 +568,41 @@ our %Grammar =
 
     [
      ['reset'],
-     { query => QNONE }
+     { query => QNONE },
+     { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
     ],
 
     [
      ['refresh'],
-     { query => QNONE }
-    ],
-
-    [
-     ['center'],
-     { query => QNONE }
+     { query => QNONE },
+     { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
     ],
 
     [
      ['hide'],
-     { query => QNONE }
+     { query => QNONE },
+     { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
     ],
 
     [
      ['show'],
+     { query => QNONE },
      { args => [ INT ], query => QNONE },
+     { args => [ ENUM( 'all' ) ], query => QNONE }
+
+    ],
+
+    [
+     ['move'],
+     { args => [ ENUM( 'first', 'back', 'forward', 'last' ) ], query => QNONE }
+    ],
+
+    [
+     ['frameno'],
+     { args => [ INT ] },
     ],
 
     [
