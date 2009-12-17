@@ -541,6 +541,12 @@ our %Grammar =
     ],
 
     [
+     ['new', 'rgb'],
+     { query => QNONE }
+    ],
+
+
+    [
      ['new'],
      { query => QNONE }
     ],
