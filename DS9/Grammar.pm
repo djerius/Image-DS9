@@ -819,20 +819,14 @@ our %Grammar =
      { args => [ COORD_RA, COORD_DEC, COORDSYS ], query => QNONE },
      { args => [ COORD_RA, COORD_DEC, COORDSYS, SKYFORMAT ], query => QNONE },
      { args => [ COORD_RA, COORD_DEC, COORDSYS, SKYFRAME  ], query => QNONE },
-     { args => [ COORD_RA, COORD_DEC, COORDSYS, SKYFRAME, SKYFORMAT ], 
+     { args => [ COORD_RA, COORD_DEC, COORDSYS, SKYFRAME, SKYFORMAT ],
        query => QNONE },
 
      { rvals => [STRING, STRING],
        cvt => 0
      },
 
-     { args => [ COORDSYS, SKYFRAME ],
-       query => QONLY,
-       rvals => [STRING, STRING],
-       cvt => 0
-     },
-
-     { args => [ COORDSYS, SKYFORMAT ], 
+     { args => [ COORDSYS, SKYFORMAT ],
        query => QONLY,
        rvals => [STRING, STRING],
        cvt => 0
@@ -843,6 +837,20 @@ our %Grammar =
        rvals => [STRING, STRING],
        cvt => 0
      },
+
+     { args => [ COORDSYS, SKYFRAME ],
+       query => QONLY,
+       rvals => [STRING, STRING],
+       cvt => 0
+     },
+
+     { args => [ COORDSYS ],
+       query => QONLY,
+       rvals => [STRING, STRING],
+       cvt => 0
+     },
+
+
     ],
 
    ],
