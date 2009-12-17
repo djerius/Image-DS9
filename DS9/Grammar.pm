@@ -1151,8 +1151,47 @@ our %Grammar =
    view =>
    [
     [
-     [ENUM( qw( info panner magnifier
-		buttons colorbar horzgraph vertgraph ) )],
+     [ENUM( qw( info
+		panner
+		magnifier
+		buttons
+		filename
+		object
+		minmax
+		lowhigh
+		frame
+		red
+		green
+		blue
+	     ) )],
+     { args => [ BOOL ] },
+    ],
+
+    [
+     ['layout'],
+     { args => [ ENUM( 'vertical', 'horizontal' ) ] },
+    ],
+
+
+    [
+     ['colorbar', 'numerics' ],
+     { args => [ BOOL ] },
+    ],
+
+
+    [
+     ['colorbar'],
+     { args => [ ENUM( 'vertical', 'horizontal' ) ] },
+     { args => [ BOOL ] },
+    ],
+
+    [
+     ['graph', 'vertical' ],
+     { args => [ BOOL ] },
+    ],
+
+    [
+     ['graph', 'horizontal' ],
      { args => [ BOOL ] },
     ],
 
