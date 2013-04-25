@@ -34,6 +34,7 @@ our @EXPORT =
      T_STRING
      T_STRING_STRIP
      T_STRING_NL
+     T_ANGLE_UNIT
 
      BOOL
      FLOAT
@@ -43,6 +44,7 @@ our @EXPORT =
      STRING_NL
      HASH
      PDL
+     ANGLE_UNIT
      SEXAGESIMAL_RA
      SEXAGESIMAL_DEC
      COORD_RA
@@ -119,6 +121,7 @@ use constant T_REWRITE     => 20;
 use constant T_STRING_NL   => 21;	# trailing \n added on output if necessary
 use constant T_WCS_SCALARREF => 22;
 use constant T_STRING_STRIP => 23;	# strip blanks from string on set
+use constant T_ANGLE_UNIT   => 24;
 use constant T_ARRAY	   => 1024;
 use constant T_OTHER	   => 8192;
 
@@ -147,6 +150,9 @@ use constant WCSS      => [ T_WCSS, $WCSS ];
 
 use constant COORDSYS  => [ T_COORDSYS, 
 			       ENUM( qw ( physical image wcs ), $WCSS ) ];
+
+use constant ANGLE_UNIT => [ T_ANGLE_UNIT,
+                               ENUM( qw( degrees arcmin arcsec ) ) ];
 
 use constant SKYFRAME  => [ T_SKYFRAME, 
 			       ENUM( qw ( fk4 fk5 icrs galactic ecliptic ) ) ];

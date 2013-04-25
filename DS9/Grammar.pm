@@ -99,22 +99,6 @@ our %Grammar =
      [ 'to fit' ],
      { query => QNONE }
     ],
-
-    [ 
-     [ 'smooth', 'function' ],
-     { args => [ ENUM( 'boxcar', 'tophat', 'gaussian' ) ] }
-    ],
-
-    [ 
-     [ 'smooth',  'radius' ],
-     { args => [ FLOAT ] }
-    ],
-
-    [
-     [ 'smooth' ],
-     { args => [ BOOL ] }
-    ],
-
    ],
 
 #------------------------------------------------------
@@ -266,7 +250,7 @@ our %Grammar =
 
     [
      ['size'],
-     { args => [ FLOAT, FLOAT ] }
+     { args => [ FLOAT, FLOAT, ANGLE_UNIT ] }
     ],
 
    ],
@@ -292,7 +276,7 @@ our %Grammar =
 
     [
      ['size'],
-     { args => [ FLOAT, FLOAT ] }
+     { args => [ FLOAT, FLOAT, ANGLE_UNIT ] }
     ],
 
    ],
@@ -313,7 +297,7 @@ our %Grammar =
 
     [
      ['size'],
-     { args => [ FLOAT, FLOAT ] }
+     { args => [ FLOAT, FLOAT, ANGLE_UNIT ] }
     ],
 
     [
@@ -861,7 +845,8 @@ our %Grammar =
    [
     [
      [],
-     { args => [ BOOL ] },
+     { args => [ ENUM( 'yes', 'no' ) ] },
+     { args => [ ENUM( 'open', 'close' ) ] },
     ],
    ],
 

@@ -16,7 +16,7 @@ load_events($ds9);
 test_stuff( $ds9, (
 		   cmap =>
 		   [
-		    [] => 'Heat',
+		    [] => 'heat',
 		    invert => 1,
 		    value => [0.2, 0.3],
 		   ],

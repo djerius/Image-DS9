@@ -15,19 +15,19 @@ my $ds9 = start_up();
 test_stuff( $ds9, (
 		   dsssao =>
 		   [
-		    size => [10,10],
+		    size => [10,10,'arcmin'],
 		    name => 'NGC5846'
 		   ],
 
 		   dsseso =>
 		   [
-		    size => [10,10],
+		    size => [10,10,'arcmin'],
 		    name => 'NGC5846',
 		   ],
 
 		   dssstsci =>
 		   [
-		    size => [10,10],
+		    size => [10,10,'arcmin'],
 		    survey => 'all',
 		    name => 'NGC5846',
 		   ]

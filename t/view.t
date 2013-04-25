@@ -16,13 +16,21 @@ test_stuff( $ds9, (
 		   view =>
 		   [
 		    ( map { $_ => 0, $_ => 1 } 
-		      qw( info panner magnifier buttons colorbar 
-			  image physical wcs ),
+		      qw( info panner magnifier buttons 
+			  image physical ),
+		    ),
+		    ( map { $_ => 'no', $_ => 'yes' } 
+		      qw( colorbar ),
+		    ),
+		    ( map { $_ => 0, $_ => 1 } 
+		      qw( wcs ),
 		    ),
 		    ( map { $_ => 1, $_ => 0 } 
-		      ( qw( horzgraph vertgraph ), 
-			map { 'wcs' . $_ } ('a'..'z') )
+		      ( map { 'wcs' . $_ } ('a'..'z') )
+		    ),
+		    ( map { $_ => 0, $_ => 1 } 
+                      ( [ 'graph', 'horizontal' ],
+                        [ 'graph', 'vertical' ] )
 		    ),
 		   ]
 		  ) );
-

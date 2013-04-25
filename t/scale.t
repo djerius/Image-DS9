@@ -32,8 +32,8 @@ test_stuff( $ds9, (
 		    mode => 'zscale',
 		    mode => 'zmax',
 		    
-		    scope => 'global',
 		    scope => 'local',
+		    scope => 'global',
 		   ],
 		  ) );
 

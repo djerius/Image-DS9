@@ -19,8 +19,8 @@ SKIP: {
 test_stuff( $ds9, (
 		   pixeltable =>
 		   [
-		    [] => 1,
-		    [] => 0,
+		    [] => 'yes',
+		    [] => 'no',
 		   ],
 		  ) );
 }

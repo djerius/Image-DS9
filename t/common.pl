@@ -64,7 +64,7 @@ sub test_stuff
 
       if ( ! ref($ret) && 1 == @$args )
       {
-	ok( $ret eq $args->[0], "$cmd $subcmd" );
+	is( $ret, $args->[0], "$cmd $subcmd" );
       }
       elsif ( @$ret == @$args )
       {

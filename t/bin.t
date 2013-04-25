@@ -5,7 +5,7 @@ use Test::More;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 10 ) ;}
+BEGIN { plan( tests => 7 ) ;}
 
 require 't/common.pl';
 
@@ -23,8 +23,5 @@ test_stuff( $ds9, (
 		    depth => 1,
 		    filter => 'rt_time > 0.5',
 		    function => 'average',
-		    smooth => 1,
-		    [qw(smooth function)] => 'boxcar',
-		    [qw(smooth radius)] => 3,
 		   ],
 		  ) );
