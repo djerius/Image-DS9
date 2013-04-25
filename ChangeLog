@@ -1,8 +1,11 @@
-2013-05-25 11:34 -0400  gaetz <gaetz1@cfa.harvard.edu>
+2013-05-25 15:30 -0400  gaetz <gaetz1@cfa.harvard.edu>
 
+	* DS9.pm: bump version to 0.183
 	* DS9/Grammar.pm DS9/PConsts.pm:
 	revised for changes in DS9; only handled essential
 	fixes, this was not a complete reconciliation.
+	Added "ANGLE_UNIT" et al. for dss functions.
+	Moved "smooth" from under "bin" to its own place.
 	* Makefile.PL: quotes around 'Test::More'; 
 	dunno why it is now necessary
 	* t/cmap.t: 'heat' needs lowercase
@@ -19,6 +22,8 @@
 	* t/bin.t: test fails because of ds9 bug (returns sexagesimal RA
 	as 0:42:44.477 instead of 00:42:44.477).  
 	Bug also affects: crosshair.t and regions.t
+	Removed smooth tests
+	* t/smooth.t: new tests for smooth.
 
 2009-12-16 20:23 -0500  djerius  <djerius@cfa.harvard.edu>  (4f0cb3a9e266 [tip])
 
