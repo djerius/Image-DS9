@@ -2,10 +2,11 @@ package Image::DS9;
 
 use strict;
 use warnings;
+use Carp;
 
 use Module::Runtime 'use_module';
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+our $VERSION = '0.183';
 
 our $use_PDL;
 
@@ -18,16 +19,6 @@ BEGIN {
       };
 }
 
-require Exporter;
-
-@ISA = qw( Exporter );
-
-# export nothing by default
-@EXPORT = qw( );
-
-$VERSION = '0.183';
-
-use Carp;
 use IPC::XPA;
 
 use Image::DS9::Command;
