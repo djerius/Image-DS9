@@ -2,22 +2,16 @@
 
 use Test::Deep;
 
-use Image::DS9;
+use t::TestServer;
 
 our $verbose = 0;
 
-sub start_up
-{
+sub start_up  {
 
-  my $ds9 = Image::DS9->new( { Server => 'ImageDS9', verbose => $verbose });
-  unless ( $ds9->nservers )
-  {
-    system( "ds9 -title ImageDS9 &" );
-    $ds9->wait() or die( "unable to connect to DS9\n" );
-  }
+    my $ds9 = t::TestServer->new( $verbose );
 
-  $ds9->raise();
-  $ds9;
+    $ds9->raise();
+    return $ds9;
 }
 
 sub clear
