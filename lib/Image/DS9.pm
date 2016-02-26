@@ -2,13 +2,20 @@ package Image::DS9;
 
 use strict;
 use warnings;
+
+use Module::Runtime 'use_module';
+
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
 our $use_PDL;
 
 BEGIN {
-  eval "use PDL::Core; use PDL::Types;"; 
-  $use_PDL = $@ ? 0 : 1;
+    $use_PDL =
+      eval {
+	  use_module( 'PDL::Core' );
+	  use_module( 'PDL::Types' );
+	  1;
+      };
 }
 
 require Exporter;

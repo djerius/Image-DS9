@@ -1,6 +1,7 @@
 #! perl
 
 requires 'IPC::XPA' => '0.08';
+requires 'Module::Runtime';
 
 on test => sub {
 
