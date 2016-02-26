@@ -1,19 +1,14 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 5;
 use Image::DS9;
-use Cwd;
-
-BEGIN { 
-	plan( tests => 5 );
-      }
 
 require 't/common.pl';
 
 my $ds9 = start_up();
 
-$ds9->file( cwd() . '/m31.fits.gz', { new => 1 }  );
+$ds9->file( 'data/m31.fits.gz', { new => 1 }  );
 
 $ds9->zoom( to => 'fit' );
 my $zval = $ds9->zoom;

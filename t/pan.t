@@ -3,18 +3,15 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 1;
 use Test::Deep;
 
 use Image::DS9;
-use Cwd;
-
-BEGIN { plan( tests => 1 ) }
 
 require 't/common.pl';
 
 my $ds9 = start_up();
-$ds9->file( cwd . '/m31.fits.gz' );
+$ds9->file( 'data/m31.fits.gz' );
 
 my @coords = qw( 00:42:41.377 +41:15:24.28 );
 $ds9->pan( to => @coords, qw( wcs fk5) );

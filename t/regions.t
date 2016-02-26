@@ -3,12 +3,11 @@ use warnings;
 
 use Test::More tests => 58;
 use Image::DS9;
-use Cwd;
 
 require 't/common.pl';
 
 my $ds9 = start_up();
-$ds9->file( cwd() . '/m31.fits.gz' );
+$ds9->file( 'data/m31.fits.gz' );
 $ds9->zoom(0);
 
 test_stuff( $ds9, (

@@ -29,15 +29,12 @@ sub clear
 }
 
 
-# need this to get around bugs in ds9
 sub load_events
 {
   my $ds9 = shift;
 
-  eval {
-    $ds9->file( cwd() . "/snooker.fits.gz", { extname => 'raytrace',
-					   bin => [ 'rt_x', 'rt_y' ] } );
-  };
+  $ds9->file( 'data/snooker.fits.gz', { extname => 'raytrace',
+					bin => [ 'rt_x', 'rt_y' ] } );
   $ds9->bin( factor => 0.025 );
   $ds9->zoom( 0 );
 }

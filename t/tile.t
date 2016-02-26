@@ -1,18 +1,14 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 9;
 use Image::DS9;
-use Cwd;
-
-BEGIN { plan( tests => 9 ) ;}
 
 require 't/common.pl';
 
-
 my $ds9 = start_up();
-$ds9->file( cwd. '/m31.fits.gz' );
-$ds9->file( cwd. '/m31.fits.gz', { new => 1 } );
+$ds9->file( 'data/m31.fits.gz' );
+$ds9->file( 'data/m31.fits.gz', { new => 1 } );
 
 test_stuff( $ds9, (
 		   tile =>

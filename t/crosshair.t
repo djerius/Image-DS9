@@ -6,12 +6,11 @@ use Test::More tests => 2;
 use Test::Deep;
 
 use Image::DS9;
-use Cwd;
 
 require 't/common.pl';
 
 my $ds9 = start_up();
-$ds9->file( cwd. '/m31.fits.gz' );
+$ds9->file( 'data/m31.fits.gz' );
 
 $ds9->crosshair( 0, 0, 'image' );
 cmp_deeply( [0, 0],
