@@ -1,11 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 72;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 72 ) ;}
 
 require 't/common.pl';
 
@@ -19,12 +18,10 @@ test_stuff( $ds9, (
 		      qw( info panner magnifier buttons 
 			  image physical ),
 		    ),
-		    ( map { $_ => 'no', $_ => 'yes' } 
-		      qw( colorbar ),
-		    ),
-		    ( map { $_ => 0, $_ => 1 } 
-		      qw( wcs ),
-		    ),
+		    colorbar => 'no',		# FIXME; should be 1/0? why not?
+		    colorbar => 'yes',
+		    wcs => 0,
+		    wcs => 1,
 		    ( map { $_ => 1, $_ => 0 } 
 		      ( map { 'wcs' . $_ } ('a'..'z') )
 		    ),

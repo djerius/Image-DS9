@@ -1,30 +1,33 @@
+#! perl
+
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 6;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 9 ) ;}
-
 require 't/common.pl';
-
 
 my $ds9 = start_up();
 $ds9->file( cwd . '/m31.fits.gz' );
 
-test_stuff( $ds9, (
-		   minmax =>
-		   [
-		    mode => 'scan',
-		    mode => 'sample',
-		    mode => 'datamin',
-		    mode => 'irafmin',
-		    [] => 'scan',
-		    [] => 'sample',
-		    [] => 'datamin',
-		    [] => 'irafmin',
-		    interval => 22,
-		   ],
-		  ) );
+my @tests = (
+    mode     => 'scan',
+    mode     => 'datamin',
+    mode     => 'irafmin',
+    []       => 'scan',
+    []       => 'datamin',
+    []       => 'irafmin',
+    (
+        $ds9->version < 7.4
+        ? (
+            mode => 'sample',
+            []   => 'sample',
+          )
+        : ()
+    ),
+);
+
+test_stuff( $ds9, minmax => \@tests );
 

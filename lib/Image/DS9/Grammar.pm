@@ -253,6 +253,17 @@ our %Grammar =
      { args => [ FLOAT, FLOAT, ANGLE_UNIT ] }
     ],
 
+    [
+     [ 'close' ],
+     { query => QNONE } 
+    ],
+
+    [
+     [ 'open' ],
+     { query => QNONE } 
+    ],
+
+
    ],
 
 #------------------------------------------------------
@@ -278,6 +289,17 @@ our %Grammar =
      ['size'],
      { args => [ FLOAT, FLOAT, ANGLE_UNIT ] }
     ],
+
+    [
+     [ 'close' ],
+     { query => QNONE } 
+    ],
+
+    [
+     [ 'open' ],
+     { query => QNONE } 
+    ],
+
 
    ],
 
@@ -315,6 +337,16 @@ our %Grammar =
 		     )
 	       ]
      }
+    ],
+
+    [
+     [ 'close' ],
+     { query => QNONE } 
+    ],
+
+    [
+     [ 'open' ],
+     { query => QNONE } 
     ],
 
    ],
@@ -696,8 +728,7 @@ our %Grammar =
    [
     [
      [],
-     { args => [ ENUM( 'pointer', 'crosshair', 'colorbar', 'pan',
-		       'zoom', 'rotate', 'examine' ) ],
+     { args => [ ENUM( qw< none region crosshair colorbar pan zoom rotate catalog examine > ) ],
      }
     ],
    ],
@@ -720,6 +751,16 @@ our %Grammar =
     [
      ['skyformat'],
      { args => [ SKYFORMAT ] }
+    ],
+
+    [
+     [ 'close' ],
+     { query => QNONE } 
+    ],
+
+    [
+     [ 'open' ],
+     { query => QNONE } 
     ],
 
     [

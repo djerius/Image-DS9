@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 6;
 use Image::DS9;
 use Cwd;
-
-BEGIN { plan( tests => 6 ) ;}
 
 require 't/common.pl';
 
@@ -20,18 +18,8 @@ test_stuff( $ds9, (
 		    server => 'simbad-sao',
 		    server => 'simbad-eso',
 		    skyformat => 'degrees',
-		   ],
-		  ) );
-
-
-SKIP: {
-      skip '5.6.3 returns incorrect value for skyformat if it is sexagesimal', 1 if $ds9->version eq '5.6.3';
-
-test_stuff( $ds9, (
-		   nameserver =>
-		   [
 		    skyformat => 'sexagesimal',
 		   ],
 		  ) );
-}
 
+$ds9->nameserver( 'close' );

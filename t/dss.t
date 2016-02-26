@@ -1,35 +1,25 @@
+#! perl
+
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 6;
 use Image::DS9;
 use Cwd;
 
-BEGIN { plan( tests => 7 ) ;}
-
 require 't/common.pl';
-
 
 my $ds9 = start_up();
 
-test_stuff( $ds9, (
-		   dsssao =>
-		   [
-		    size => [10,10,'arcmin'],
-		    name => 'NGC5846'
-		   ],
+for my $server ( qw[ dsssao dsseso dssstsci ] ) {
+    test_stuff(
+        $ds9,
+        (
+            $server => [
+                size => [ 10, 10, 'arcmin' ],
+                name => 'NGC5846'
+            ],
+        ) );
 
-		   dsseso =>
-		   [
-		    size => [10,10,'arcmin'],
-		    name => 'NGC5846',
-		   ],
-
-		   dssstsci =>
-		   [
-		    size => [10,10,'arcmin'],
-		    survey => 'all',
-		    name => 'NGC5846',
-		   ]
-		  ) );
-
+    $ds9->$server( 'close' );
+}

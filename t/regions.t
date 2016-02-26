@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 58;
 use Image::DS9;
 use Cwd;
-
-BEGIN { plan( tests => 58 ) ;}
 
 require 't/common.pl';
 
@@ -53,7 +51,7 @@ $ds9->frame( 'center' );
 my $coords = $ds9->pan( 'wcs', 'fk5', 'sexagesimal' );
 
 my $region = "fk5;text($coords->[0],$coords->[1]) # color=yellow text={Hello}";
-my $expected_region = "fk5\n# text(00:42:44.477,+41:16:04.53) color=yellow text={Hello}";
+my $expected_region = qr/fk5\s#\s*text\(00?:42:44\.477,\+41:16:04\.53\) color=yellow text=\{Hello\}/;
 
 eval { 
   $ds9->regions( $region );
@@ -84,4 +82,4 @@ shift @lines while $lines[0] =~ /^#/;
 shift @lines if $lines[0] =~ /^global/;
 
 # and the rest should match the expected region defined above.
-is( join("\n", @lines), $expected_region, "regions get" );
+like( join("\n", @lines), $expected_region, "regions get" );

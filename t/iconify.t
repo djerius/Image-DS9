@@ -12,6 +12,9 @@ require 't/common.pl';
 
 my $ds9 = start_up();
 
+SKIP: {
+      skip 'iconify currently untestable', 2;
+
 test_stuff( $ds9, (
 		   iconify =>
 		   [
@@ -20,3 +23,4 @@ test_stuff( $ds9, (
 		   ],
 		  ) );
 
+}
