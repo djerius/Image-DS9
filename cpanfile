@@ -1,9 +1,12 @@
 #! perl
 
+requires 'IPC::XPA' => '0.08';
+
 on test => sub {
 
-   requires 'Test::More';
+   requires 'Test::More' => '0.31';
    requires 'Test::Deep';
+   requires 'Test::Fatal';
 };
 
 on develop => sub {
