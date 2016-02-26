@@ -3,7 +3,6 @@ use warnings;
 
 use Test::More tests => 72;
 use Image::DS9;
-use Cwd;
 
 
 require 't/common.pl';
