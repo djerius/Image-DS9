@@ -18,7 +18,7 @@ sub new
   my $command = shift;
   my $opts = shift || {};
 
-  return undef unless exists $Image::DS9::Grammar::Grammar{$command};
+  return unless exists $Image::DS9::Grammar::Grammar{$command};
 
   my $spec = $Image::DS9::Grammar::Grammar{$command};
 

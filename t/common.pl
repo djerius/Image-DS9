@@ -1,3 +1,7 @@
+#! perl
+
+use Test::Deep;
+
 use Image::DS9;
 
 our $verbose = 0;
@@ -11,7 +15,7 @@ sub start_up
     system( "ds9 -title ImageDS9 &" );
     $ds9->wait() or die( "unable to connect to DS9\n" );
   }
-  
+
   $ds9->raise();
   $ds9;
 }
@@ -31,7 +35,7 @@ sub load_events
   my $ds9 = shift;
 
   eval {
-    $ds9->file( cwd() . "/snooker.fits.gz", { extname => 'raytrace', 
+    $ds9->file( cwd() . "/snooker.fits.gz", { extname => 'raytrace',
 					   bin => [ 'rt_x', 'rt_y' ] } );
   };
   $ds9->bin( factor => 0.025 );
@@ -50,7 +54,7 @@ sub test_stuff
     while ( my ( $subcmd, $args ) = splice( @$subcmds, 0, 2 ) )
     {
       my @subcmd = ( 'ARRAY' eq ref $subcmd ? @$subcmd : $subcmd );
-      $subcmd = join( ' ', @$subcmd) if 'ARRAY' eq ref $subcmd;
+      $subcmd = join( ' ', @subcmd);
 
       $args = [ $args ] unless 'ARRAY' eq ref $args;
 
@@ -60,15 +64,15 @@ sub test_stuff
 	$ret = $ds9->$cmd(@subcmd);
       };
 
-      print($@) && fail( "$cmd $subcmd" ) if $@;
+      diag($@) && fail( "$cmd $subcmd" ) if $@;
 
       if ( ! ref($ret) && 1 == @$args )
       {
-	is( $ret, $args->[0], "$cmd $subcmd" );
+	is( $ret, $args->[0], join( " ", $cmd, $subcmd,  @$args ) );
       }
       elsif ( @$ret == @$args )
       {
-	ok ( eq_array( $ret, $args ), "$cmd $subcmd" );
+	cmp_deeply( $ret, $args,  "$cmd $subcmd" );
       }
       else
       {
