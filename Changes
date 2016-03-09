@@ -1,5 +1,20 @@
 Revision history for Perl extension Image::DS9.
 
+0.184	2016-02-26T17:14:58-0500
+
+  [ BUILD ]
+
+    * modernized layout
+    * tests pass against ds9 v7.4. (does *not* support full DS9 API)
+    * problem with hanging after starting ds9 in tests fixed.
+
+0.183	2013-04-25T15:17:57-0400
+
+  [ BUILD ]
+
+    *  tests updated
+
+
 0.182	2009-12-16T20:26:22-05:00
 
         - updated grammar to match DS9 5.7 for commands cd, frame,
