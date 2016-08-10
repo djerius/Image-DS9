@@ -1,5 +1,13 @@
 Revision history for Perl extension Image::DS9.
 
+0.185	2016-08-10T11:43:07-0400
+
+  [ TEST FIX ]
+
+    * newer versions of ds9 only allow printing over 'local'
+      connections.
+
+
 0.184	2016-02-26T17:14:58-0500
 
   [ BUILD ]
