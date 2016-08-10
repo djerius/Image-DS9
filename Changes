@@ -1,5 +1,11 @@
 Revision history for Perl extension Image::DS9.
 
+0.186	2016-08-10T12:21:52-0400
+
+  [ BUILD ]
+
+    * add repository information to metadata
+
 0.185	2016-08-10T11:43:07-0400
 
   [ TEST FIX ]

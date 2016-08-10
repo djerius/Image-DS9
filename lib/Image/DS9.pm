@@ -6,7 +6,7 @@ use Carp;
 
 use Module::Runtime 'use_module';
 
-our $VERSION = '0.185';
+our $VERSION = '0.186';
 
 our $use_PDL;
 
