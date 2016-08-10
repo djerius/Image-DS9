@@ -626,6 +626,10 @@ return it.
 
 =item print
 
+I<print only works if >B<ds9>I< uses the >C<local>I< XPA transfer protocol>.
+Set the B<XPA_METHOD> environment variable to C<local> prior to
+starting up B<ds9> and using this module.
+
 The supported options are:
 
 C<destination>,

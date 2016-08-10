@@ -10,6 +10,10 @@ sub new {
     my $class   = shift;
     my $verbose = shift;
 
+    # some facilities (e.g. print) will only work if
+    # XPA_METHOD=local
+    $ENV{XPA_METHOD} = 'local';
+
     my $self
       = $class->SUPER::new( { Server => 'ImageDS9', verbose => $verbose } );
 
