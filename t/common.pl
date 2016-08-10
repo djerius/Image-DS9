@@ -1,6 +1,7 @@
 #! perl
 
 use Test::Deep;
+use Test::More;
 
 use t::TestServer;
 
@@ -55,7 +56,7 @@ sub test_stuff
 	$ret = $ds9->$cmd(@subcmd);
       };
 
-      diag($@) && fail( "$cmd $subcmd" ) if $@;
+      diag($@, explain($ds9->res) ) && fail( "$cmd $subcmd" ) if $@;
 
       if ( ! ref($ret) && 1 == @$args )
       {
