@@ -5,7 +5,7 @@ package Image::DS9::Parser;
 use strict;
 use warnings;
 
-our $VERSION = '0.186';
+our $VERSION = '0.187';
 
 use Carp;
 use Data::Dumper;
