@@ -6,7 +6,7 @@ package Image::DS9::OldConstants;
 use strict;
 use warnings;
 
-our $VERSION = '0.187';
+our $VERSION = '0.188';
 
 our (@ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 

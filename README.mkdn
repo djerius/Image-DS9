@@ -4,7 +4,7 @@ Image::DS9 - interface to the DS9 image display and analysis program
 
 # VERSION
 
-version 0.187
+version 0.188
 
 # SYNOPSIS
 

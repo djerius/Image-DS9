@@ -5,7 +5,7 @@ package Image::DS9::Command;
 use strict;
 use warnings;
 
-our $VERSION = '0.187';
+our $VERSION = '0.188';
 
 use Carp;
 
