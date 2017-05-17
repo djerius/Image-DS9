@@ -51,7 +51,7 @@ $ds9->frame( 'center' );
 my $coords = $ds9->pan( 'wcs', 'fk5', 'sexagesimal' );
 
 my $region = "fk5;text($coords->[0],$coords->[1]) # color=yellow text={Hello}";
-my $expected_region = qr/fk5\s#\s*text\(00?:42:44\.477,\+41:16:04\.53\) color=yellow text=\{Hello\}/;
+my $expected_region = qr/fk5\s#\s*text\(00?:42:44\.477,\+41:16:04\.(53|529)\) color=yellow text=\{Hello\}/;
 
 eval {
   $ds9->regions( $region );
