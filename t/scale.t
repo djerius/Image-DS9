@@ -10,26 +10,25 @@ my $ds9 = start_up();
 $ds9->file( 'data/m31.fits.gz' );
 
 test_stuff( $ds9, (
-		   scale =>
-		   [
-		    [] => 'linear',
-		    [] => 'log',
-		    [] => 'squared',
-		    [] => 'sqrt',
-		    [] => 'histequ',
-		    [] => 'linear',
-		    
-		    datasec => 1,
-		    datasec => 0,
-		    
-		    limits => [1, 100],
-		    mode => 'minmax',
-		    mode => 33,
-		    mode => 'zscale',
-		    mode => 'zmax',
-		    
-		    scope => 'local',
-		    scope => 'global',
-		   ],
-		  ) );
+                   scale =>
+                   [
+                    [] => 'linear',
+                    [] => 'log',
+                    [] => 'squared',
+                    [] => 'sqrt',
+                    [] => 'histequ',
+                    [] => 'linear',
 
+                    datasec => 1,
+                    datasec => 0,
+
+                    limits => [1, 100],
+                    mode => 'minmax',
+                    mode => 33,
+                    mode => 'zscale',
+                    mode => 'zmax',
+
+                    scope => 'local',
+                    scope => 'global',
+                   ],
+                  ) );

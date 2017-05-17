@@ -1,4 +1,7 @@
-Revision history for Perl extension Image::DS9.
+Revision history for {{$dist->name}}
+
+{{$NEXT}}
+
 
 0.186	2016-08-10T12:21:52-0400
 

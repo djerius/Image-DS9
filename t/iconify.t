@@ -14,11 +14,11 @@ SKIP: {
       skip 'iconify currently untestable', 2;
 
 test_stuff( $ds9, (
-		   iconify =>
-		   [
-		    [] => 1,
-		    [] => 0,
-		   ],
-		  ) );
+                   iconify =>
+                   [
+                    [] => 1,
+                    [] => 0,
+                   ],
+                  ) );
 
 }

@@ -19,14 +19,14 @@ sub new {
 
     unless ( $self->nservers ) {
 
-	my $pid = fork;
-	die( "unable to fork: $!\n" ) if ! defined $pid;
-	if ( $pid ) {
-		$self->{_child_pid} = $pid;
-		$self->wait() or die( "unable to connect to DS9\n" );
-	    }
-	else {
-	    exec( qw[ds9 -title ImageDS9] );
+        my $pid = fork;
+        die( "unable to fork: $!\n" ) if ! defined $pid;
+        if ( $pid ) {
+                $self->{_child_pid} = $pid;
+                $self->wait() or die( "unable to connect to DS9\n" );
+            }
+        else {
+            exec( qw[ds9 -title ImageDS9] );
         }
     }
 
@@ -38,8 +38,8 @@ sub DESTROY {
     my $self = shift;
 
     if ( $self->{_child_pid} ) {
-	$self->quit ;
-	waitpid $self->{_child_pid}, 0;
+        $self->quit ;
+        waitpid $self->{_child_pid}, 0;
     }
 
     $self->SUPER::DESTROY;

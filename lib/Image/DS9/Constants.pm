@@ -1,7 +1,11 @@
 package Image::DS9::Constants;
 
+# ABSTRACT:  predefined constants
+
 use strict;
 use warnings;
+
+our $VERSION = '0.186';
 
 require constant;
 require Exporter;
@@ -10,7 +14,7 @@ our @ISA = qw( Exporter );
 
 our @EXPORT;
 
-our @values = 
+our @values =
   (
    (map { 'wcs' . $_ } ('a'..'z')),
    (
@@ -196,11 +200,12 @@ sub list
 
   unshift @_, __PACKAGE__ ;
   my @list = sort &gen_list;
+  ## no critic ProhibitNoStrict
   no strict 'refs';
   my $len = 0;
   do { my $l = length($_); $len = $l if $l > $len } foreach @list;
   printf("%-${len}s => '%s'\n", $_, &$_) foreach @list;
-    
+
 }
 
 
@@ -226,15 +231,12 @@ sub gen_list
   @list;
 }
 
+# COPYRIGHT
 
 1;
 
 
 __END__
-
-=head1 NAME
-
-  Image::DS9::Constants - predefined constants
 
 =head1 SYNOPSIS
 
@@ -248,7 +250,7 @@ __END__
   use Image::DS9::Constants Prefix => 'X_';
 
   # change the prefix and import a subset
-  use Image::DS9::Constants 
+  use Image::DS9::Constants
      Prefix => 'X_', qw( X_const1 X_const2 );
 
   # list the available constants;
@@ -274,21 +276,3 @@ prefix,
 
   perl -MImage::DS9::Constants \
           -e 'Image::DS9::Constants::list( Prefix => "XX")'
-
-
-=head1 LICENSE
-
-This software is released under the GNU General Public License.  You
-may find a copy at 
-
-   http://www.fsf.org/copyleft/gpl.html
-
-=head1 AUTHOR
-
-Diab Jerius ( djerius@cfa.harvard.edu )
-
-=head1 SEE ALSO
-
-  perl(1), Image::DS9;
-
-=cut

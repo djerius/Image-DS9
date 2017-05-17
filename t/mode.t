@@ -12,6 +12,6 @@ $ds9->file( 'data/m31.fits.gz' );
 my @modes = qw[ none region crosshair colorbar pan zoom rotate catalog examine ];
 
 test_stuff( $ds9, (
-		   mode => [ map { [] => $_ } @modes ],
-		  ) );
+                   mode => [ map { [] => $_ } @modes ],
+                  ) );
 

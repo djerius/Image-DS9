@@ -13,12 +13,12 @@ my $ds9 = start_up();
 $ds9->file( 'data/m31.fits.gz' );
 
 test_stuff( $ds9, (
-		   orient =>
-		   [
-		    [] => 'x',
-		    [] => 'y',
-		    [] => 'xy',
-		    [] => 'none',
-		   ],
-		  ) );
+                   orient =>
+                   [
+                    [] => 'x',
+                    [] => 'y',
+                    [] => 'xy',
+                    [] => 'none',
+                   ],
+                  ) );
 

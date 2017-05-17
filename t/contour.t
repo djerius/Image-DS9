@@ -13,9 +13,9 @@ my $ds9 = start_up();
 $ds9->file( 'data/m31.fits.gz' );
 
 test_stuff( $ds9, (
-		   contour =>
-		   [
-		    [] => 1,
-		   ],
-		  ) );
+                   contour =>
+                   [
+                    [] => 1,
+                   ],
+                  ) );
 

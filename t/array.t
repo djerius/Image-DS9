@@ -26,9 +26,9 @@ eval {
 };
 diag $@ if $@;
 ok( ! $@, "PDL array" );
-  
+
 my $p = $x->get_dataref;
-  
+
 my @dims = $x->dims;
 eval {
   $ds9->array($$p, { xdim => $dims[0], ydim => $dims[1], bitpix => -64 } );

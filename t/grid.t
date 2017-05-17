@@ -15,13 +15,13 @@ my $ds9 = start_up();
 load_events( $ds9 );
 
 test_stuff( $ds9, (
-		   grid =>
-		   [
-		    [] => 1,
-		    [] => 0,
-		   ],
-		   
-		  ) );
+                   grid =>
+                   [
+                    [] => 1,
+                    [] => 0,
+                   ],
+
+                  ) );
 
 
 $ds9->grid(1);

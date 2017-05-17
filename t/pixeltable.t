@@ -17,10 +17,10 @@ SKIP: {
       skip 'pixeltable currently untestable', 2;
 
 test_stuff( $ds9, (
-		   pixeltable =>
-		   [
-		    [] => 'yes',
-		    [] => 'no',
-		   ],
-		  ) );
+                   pixeltable =>
+                   [
+                    [] => 'yes',
+                    [] => 'no',
+                   ],
+                  ) );
 }

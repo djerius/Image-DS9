@@ -1,8 +1,8 @@
+# PODNAME: Image::DS9
+
+# ABSTRACT: interface to the DS9 image display and analysis program
+
 =pod
-
-=head1 NAME
-
-Image::DS9 - interface to the DS9 image display and analysis program
 
 =head1 SYNOPSIS
 
@@ -58,7 +58,7 @@ Because one usually communicates with a single B<DS9> instance,
 if a query is made in scalar mode, the result is returned as a scalar,
 i.e.:
 
-	$cmap = $dsp->cmap();
+        $cmap = $dsp->cmap();
 
 In this mode, if more than one server responds, you'll get the
 results for a randomly chosen server.  Some commands, in particular
@@ -70,16 +70,16 @@ These commands are documented below.
 If a return value is multi-valued, a query in scalar context yields a
 reference to an array, not a scalar.  For instance:
 
-	$res = $dsp->bin( 'about' );
-	($x, $y ) = @$res;
+        $res = $dsp->bin( 'about' );
+        ($x, $y ) = @$res;
 
 returns a reference to an array, while
 
-	$res = $dsp->bin( 'buffersize' );
+        $res = $dsp->bin( 'buffersize' );
 
 returns a scalar.  Don't attempt to do
 
-	($x, $y ) = $dsp->bin( 'about' ); # ERROR DON"T DO THIS
+        ($x, $y ) = $dsp->bin( 'about' ); # ERROR DON"T DO THIS
 
 as it will return a full blown hash as documented next.
 
@@ -91,36 +91,36 @@ an error. The C<buf> element contains the results of a query.
 
 For example,
 
-	use Data::Dumper;
-	%cmaps = $dsp->cmap;
-	print Dumper \%cmaps;
+        use Data::Dumper;
+        %cmaps = $dsp->cmap;
+        print Dumper \%cmaps;
 
 yields
 
-	$VAR1 = {
-	         'DS9:ds9 838e2ab4:32832' =>
-	          {
-	            'name' => 'DS9:ds9 838e2ab4:32832',
-	            'buf' => 'Grey'
-	          }
-	        };
+        $VAR1 = {
+                 'DS9:ds9 838e2ab4:32832' =>
+                  {
+                    'name' => 'DS9:ds9 838e2ab4:32832',
+                    'buf' => 'Grey'
+                  }
+                };
 
 Ordinarily, the C<buf> element will be unaltered (except for the
 removal of trailing newlines) from what B<DS9> outputs.  For
 multi-valued return results, C<buf> is set to an array containing
 the values:
 
-	use Data::Dumper;
-	%res = $dsp->bin( 'about' );
-	print Dumper \%res;
+        use Data::Dumper;
+        %res = $dsp->bin( 'about' );
+        print Dumper \%res;
 
-	$VAR1 = {
-	         'DS9:ds9 838e2ab4:32832' =>
-	          {
-	            'name' => 'DS9:ds9 838e2ab4:32832',
-	            'buf' => [ 20, 30 ],
-	          }
-	        };
+        $VAR1 = {
+                 'DS9:ds9 838e2ab4:32832' =>
+                  {
+                    'name' => 'DS9:ds9 838e2ab4:32832',
+                    'buf' => [ 20, 30 ],
+                  }
+                };
 
 Sending data doesn't result in a return value.
 
@@ -201,7 +201,7 @@ empty strings.
 
 For example,
 
-	$dsp = new Image::DS9( { max_servers => 3 } );
+        $dsp = new Image::DS9( { max_servers => 3 } );
 
 
 =item nservers
@@ -247,14 +247,14 @@ Most methods exactly parallel the B<DS9> B<XPA> commands.  In general
 each element in a command is passed as a separate argument to the
 method.  For example, to change the binning factor:
 
-	 $dsp->bin( factor => 0.2 );
+         $dsp->bin( factor => 0.2 );
 
 Some commands have more arguments:
 
-	$dsp->bin( smooth => function => 'boxcar' );
-	$dsp->bin( smooth => radius => 33 );
-	$dsp->bin( about => ( 3, 3 ) );
-	$dsp->bin( cols => ( 'rt_x', 'rt_y' ) );
+        $dsp->bin( smooth => function => 'boxcar' );
+        $dsp->bin( smooth => radius => 33 );
+        $dsp->bin( about => ( 3, 3 ) );
+        $dsp->bin( cols => ( 'rt_x', 'rt_y' ) );
 
 Note the use of the C<=E<gt>> operator to force preceding barewords to be
 treated as strings, and the frivolous use of extra parenthesis for
@@ -406,16 +406,16 @@ When queried, some of the options may return more than one value.  In
 those cases, a query yields a reference to an array, not a scalar.
 For instance:
 
-	$res = $dsp->dss( 'coord' );
-	($x, $y ) = @$res;
+        $res = $dsp->dss( 'coord' );
+        ($x, $y ) = @$res;
 
 returns a reference to an array, while
 
-	$res = $dsp->dss( 'server' );
+        $res = $dsp->dss( 'server' );
 
 returns a scalar.  Don't attempt to do
 
-	($x, $y ) = $dsp->dss( 'coord' ); # ERROR DON"T DO THIS
+        ($x, $y ) = $dsp->dss( 'coord' ); # ERROR DON"T DO THIS
 
 As it will return a full blown hash as documented in L</Return Values>.
 
@@ -571,7 +571,7 @@ Set (or query) the first mouse button mode state.
 
 =item nameserver
 
-The following options are supported: 
+The following options are supported:
 
 C<name>,
 C<server>,
@@ -699,7 +699,7 @@ keys: C<-format>, C<-system>, C<-sky>, C<-skyformat>, C<-strip>.
 
 =item rotate
 
-  $rotate = $dsp->rotate;	  # query current angle
+  $rotate = $dsp->rotate;         # query current angle
   $dsp->rotate( abs => $angle );  # absolute
   $dsp->rotate( to => $angle );   # absolute
   $dsp->rotate( rel => $angle );  # relative
@@ -979,6 +979,6 @@ Diab Jerius ( djerius@cfa.harvard.edu )
 
 =head1 SEE ALSO
 
-perl(1), IPC::XPA.
+L<IPC::XPA>
 
 =cut

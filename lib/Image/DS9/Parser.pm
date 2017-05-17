@@ -1,14 +1,18 @@
 package Image::DS9::Parser;
 
+# ABSTRACT: Parser driver
+
 use strict;
 use warnings;
+
+our $VERSION = '0.186';
 
 use Carp;
 use Data::Dumper;
 
 use Image::DS9::PConsts;
 
-
+use namespace::clean;
 
 sub parse_spec
 {
@@ -40,14 +44,14 @@ sub parse_spec
       # input arguments must have at least the number of
       # sub command slots.
 
-      if ( my ( $tag, $valref, $extra ) = 
-	   match( $_[$iarg++], $spec->[0][$icmd] ) )
+      if ( my ( $tag, $valref, $extra ) =
+           match( $_[$iarg++], $spec->[0][$icmd] ) )
       {
-	push @{$match{cmds}}, [ $tag, $valref, $extra ];
-	$nmatch++;
+        push @{$match{cmds}}, [ $tag, $valref, $extra ];
+        $nmatch++;
       }
       else  {
-	next SPEC ;
+        next SPEC ;
       }
 
     }
@@ -81,10 +85,10 @@ sub parse_spec
 
       # default is to query, no args.
       $argl->{query} = QYES unless exists $argl->{query};
-      
+
       # make sure there's an array there, even if empty
       $argl->{args} ||= [];
-      
+
       # number of return values in case of a query; the grammar
       # need only specify it if it's not the same as the number
       # of arguments
@@ -96,64 +100,64 @@ sub parse_spec
       my $found_attrs = 0;
       if ( exists $argl->{attrs} && 'HASH' eq ref $_[-1] )
       {
-	$found_attrs = 1;
-	# so we don't stumble across 'em
-	$nargs--;
+        $found_attrs = 1;
+        # so we don't stumble across 'em
+        $nargs--;
       }
 
       # if we have no passed arguments, and the spec is query only or
       # query possible, we have a match!
-      
+
       if ( ! $nargs && $argl->{query} && !( $argl->{query} & QARGS ))
       {
-	$match{argl} = $argl;
+        $match{argl} = $argl;
 
-	# the number of returned values. set to number of possible
-	# arguments if not explicitly specified.
-	$match{query} = @{$argl->{rvals}} || @{$argl->{args}} || 1;
+        # the number of returned values. set to number of possible
+        # arguments if not explicitly specified.
+        $match{query} = @{$argl->{rvals}} || @{$argl->{args}} || 1;
       }
-      
+
       # correct number of arguments.
       elsif ( $nargs == @{$argl->{args}} )
       {
-	$match{args} = [];
+        $match{args} = [];
 
-	foreach my $arg ( @{$argl->{args}} )
-	{
-	  # $extra is not yet supported for args
-	  if ( my ( $tag, $valref, $extra ) =
-	       match( $_[$iarg++], $arg ) )
-	  {
-	    push @{$match{args}}, [ $tag, $valref, $extra ];
-	    $nmatch++;
-	  }
-	  else {
-	    next ARGLIST ;
-	  }
-	  
-	}
+        foreach my $arg ( @{$argl->{args}} )
+        {
+          # $extra is not yet supported for args
+          if ( my ( $tag, $valref, $extra ) =
+               match( $_[$iarg++], $arg ) )
+          {
+            push @{$match{args}}, [ $tag, $valref, $extra ];
+            $nmatch++;
+          }
+          else {
+            next ARGLIST ;
+          }
 
-	$match{argl} = $argl;
+        }
 
-	# the number of returned values. set to number of possible
-	# arguments if not explicitly specified.
-	$match{query} = $argl->{query} & QARGS ? 
-	  @{$argl->{rvals}} || @{$argl->{args}} || 1 : 0;
+        $match{argl} = $argl;
+
+        # the number of returned values. set to number of possible
+        # arguments if not explicitly specified.
+        $match{query} = $argl->{query} & QARGS ?
+          @{$argl->{rvals}} || @{$argl->{args}} || 1 : 0;
       }
-      
+
       else
       {
-	next ARGLIST;
+        next ARGLIST;
       }
 
       if ( $found_attrs )
       {
-	# we need to make a copy, 
-	$match{attrs} = parse_attr( $command, $_[-1], $argl->{attrs} );
+        # we need to make a copy,
+        $match{attrs} = parse_attr( $command, $_[-1], $argl->{attrs} );
 
-	croak( __PACKAGE__,
-	       ": $command: cannot specify attributes with this query" )
-	  if $match{query} && ! ($argl->{query} & QATTR);
+        croak( __PACKAGE__,
+               ": $command: cannot specify attributes with this query" )
+          if $match{query} && ! ($argl->{query} & QATTR);
 
       }
 
@@ -166,8 +170,8 @@ sub parse_spec
 
   $max_match += $nmatch + 1;
 
-  croak( __PACKAGE__, 
-	 ": $command: missing, unexpected, or illegal value for argument #$max_match" )
+  croak( __PACKAGE__,
+         ": $command: missing, unexpected, or illegal value for argument #$max_match" )
     unless defined $match{argl};
 
 #  print Dumper \%match;
@@ -181,7 +185,7 @@ sub parse_attr
 
   my %attr;
 
-  # need to make a local copy of the specs array, as _parse_attr 
+  # need to make a local copy of the specs array, as _parse_attr
   # destroys the array
   my @specs = @$specs;
 
@@ -190,7 +194,7 @@ sub parse_attr
   my @unknown = grep { ! exists $attr{$_} } keys %$uattr;
 
   croak( __PACKAGE__, ": $command: unknown attribute(s): ",
-	 join( ', ', @unknown ) ) if @unknown;
+         join( ', ', @unknown ) ) if @unknown;
 
   \%attr;
 }
@@ -212,44 +216,44 @@ sub _parse_attr
 
       if ( 'a' eq $op )
       {
-	
-	# no matches? record and continue 
-	unless ( $smatch )
-	{
-	  push @res, { what => $sres, match => 0 };
-	  next;
-	}
 
-	# number of matches should equal number of attrs
-	unless ( $smatch == @$sres )
-	{
-	  croak( __PACKAGE__, ": $command: missing attributes: ", 
-	        dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
-	}
+        # no matches? record and continue
+        unless ( $smatch )
+        {
+          push @res, { what => $sres, match => 0 };
+          next;
+        }
 
-	push @res, { what => $sres, match => 1, op => $op };
-	$nmatch++;
+        # number of matches should equal number of attrs
+        unless ( $smatch == @$sres )
+        {
+          croak( __PACKAGE__, ": $command: missing attributes: ",
+                dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
+        }
+
+        push @res, { what => $sres, match => 1, op => $op };
+        $nmatch++;
       }
 
       elsif ( 'o' eq $op )
       {
-	
-	# no matches? record and continue 
-	unless ( $smatch )
-	{
-	  push @res, { what => $sres, match => 0 };
-	  next;
-	}
 
-	# only should have one match
-	unless ( $smatch == 1 )
-	{
-	  croak( __PACKAGE__, ": $command: too many attributes: ", 
-	        dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
-	}
+        # no matches? record and continue
+        unless ( $smatch )
+        {
+          push @res, { what => $sres, match => 0 };
+          next;
+        }
 
-	push @res, { what => $sres, match => 1, op => $op };
-	$nmatch++;
+        # only should have one match
+        unless ( $smatch == 1 )
+        {
+          croak( __PACKAGE__, ": $command: too many attributes: ",
+                dump_attr_chk( [ { what => $sres, match => 1, op => $op }] ) );
+        }
+
+        push @res, { what => $sres, match => 1, op => $op };
+        $nmatch++;
       }
 
     }
@@ -258,8 +262,8 @@ sub _parse_attr
       my $match = chk_attr( $command, $spec, shift(@$specs), $attr, $uattr );
       $nmatch++ if $match;
 
-      push @res, { what => $spec, 
-		   match => $match };
+      push @res, { what => $spec,
+                   match => $match };
     }
   }
   \@res, $nmatch;
@@ -278,10 +282,10 @@ sub dump_attr_chk
 
     if    ( 'ARRAY' eq ref($res->{what}) )
     {
-      my $msep = 
-	'a' eq $res->{op} ? ' & ' :
-	'o' eq $res->{op} ? ' | ' :
-	  croak( __PACKAGE__, "::dump_attr_chk: internal error" );
+      my $msep =
+        'a' eq $res->{op} ? ' & ' :
+        'o' eq $res->{op} ? ' | ' :
+          croak( __PACKAGE__, "::dump_attr_chk: internal error" );
 
       my $nmsg = dump_attr_chk( $res->{what}, $msep );
       $msg .= "($nmsg)$sep";
@@ -301,12 +305,12 @@ sub dump_attr_chk
 sub chk_attr
 {
   my ( $command, $key, $type, $attr, $uattr ) = @_;
-  
+
   if ( exists $uattr->{$key} )
   {
     # $extra is not yet supported for attrs
-    if ( my ( $tag, $valref, $extra ) 
-	 = match( $uattr->{$key}, $type ) )
+    if ( my ( $tag, $valref, $extra )
+         = match( $uattr->{$key}, $type ) )
     {
       $attr->{$key} = { tag => $tag, valref => $valref, extra => $extra };
     }
@@ -322,7 +326,7 @@ sub chk_attr
 }
 
 # ( $tag, $valref, $extra ) = match( $value, $type )
-# 
+#
 sub match
 {
 # don't do this! we need to pass by reference to avoid copying tons
@@ -351,7 +355,7 @@ sub match
 
   elsif ( 'CODE' eq ref($type) )
   {
-    return $type->($_[0], $valref) ? 
+    return $type->($_[0], $valref) ?
       ( $tag, $valref, $extra) : ();
   }
 
@@ -363,6 +367,8 @@ sub match
   ();
 }
 
+# COPYRIGHT
+
 1;
 __END__
 
@@ -371,7 +377,7 @@ __END__
 
 =head2 Command specification structure.
 
-Commands may have "sub-commands" and arguments.  A given sub-command 
+Commands may have "sub-commands" and arguments.  A given sub-command
 is allowed to have alternate argument lists.  Sub-commands may be
 queries as well as directives, and thus will return information.
 
@@ -461,7 +467,7 @@ specified in combination or exclusion.  Attributes are specified in
 an array as keyword/type pairs.  Attributes which must appear together
 should be in their own array, preceded by the token C<-a>.
 Attributes which must not appear together should be in their own
-array, preceded by the token C<-o>.  Such clauses may be nested.  
+array, preceded by the token C<-o>.  Such clauses may be nested.
 
 For example:
 
@@ -484,5 +490,7 @@ be specified with C<dim>:
 =back
 
 Note that all clauses are evaluated, to catch possibly typos by the user.
+
+=back
 
 =back

@@ -45,7 +45,7 @@ $ds9->wcs( 'reset' );
 $ds9->wcs( replace => \@wcs );
 ok( eq_array( $ncoords, scalar $ds9->crosshair( @coords ) ), 'wcs arrayref' );
 
-my %wcs = 
+my %wcs =
    (
     CRPIX1  =>               257.75,
     CRPIX2  =>               258.93,
@@ -63,21 +63,21 @@ ok( eq_array( $ncoords, scalar $ds9->crosshair( @coords ) ), 'wcs hashref' );
 
 
 test_stuff( $ds9, (
-		   wcs =>
-		   [
-		    ( map { ( system => $_ ) }
-		      ( (map { 'wcs' . $_ } ('a'..'z')), 'wcs' )
-		    ),
-		    ( map { ( [] => $_ ) }
-		      ( (map { 'wcs' . $_ } ('a'..'z')), 'wcs' )
-		    ),
-		    ( map { (sky => $_) } 
-		         qw( fk4 icrs galactic ecliptic fk5 ) 
-		    ),
-		    ( map { (skyformat => $_) } 
-		         qw( degrees sexagesimal ) 
-		    ),
-		    align => 1,
-		    align => 0,
-		   ],
-		  ) );
+                   wcs =>
+                   [
+                    ( map { ( system => $_ ) }
+                      ( (map { 'wcs' . $_ } ('a'..'z')), 'wcs' )
+                    ),
+                    ( map { ( [] => $_ ) }
+                      ( (map { 'wcs' . $_ } ('a'..'z')), 'wcs' )
+                    ),
+                    ( map { (sky => $_) }
+                         qw( fk4 icrs galactic ecliptic fk5 )
+                    ),
+                    ( map { (skyformat => $_) }
+                         qw( degrees sexagesimal )
+                    ),
+                    align => 1,
+                    align => 0,
+                   ],
+                  ) );
