@@ -3,7 +3,8 @@
 use Test::Deep;
 use Test::More;
 
-use t::TestServer;
+use lib 't/lib';
+use TestServer;
 
 our $verbose = 0;
 

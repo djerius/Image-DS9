@@ -8,7 +8,7 @@ BEGIN {
         plan( tests => 9 );
       }
 
-require 't/common.pl';
+require './t/common.pl';
 
 my $ds9 = start_up();
 clear($ds9);

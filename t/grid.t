@@ -7,7 +7,7 @@ use Cwd;
 
 BEGIN { plan( tests => 4 ) }
 
-require 't/common.pl';
+require './t/common.pl';
 
 
 my $ds9 = start_up();
