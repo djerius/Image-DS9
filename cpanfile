@@ -18,6 +18,7 @@ on 'test' => sub {
   requires "Test::Fatal" => "0";
   requires "Test::More" => "0";
   requires "blib" => "1.01";
+  requires "lib" => "0";
   requires "parent" => "0";
   requires "perl" => "5.006";
 };
@@ -27,7 +28,9 @@ on 'test' => sub {
 };
 
 on 'configure' => sub {
+  requires "Config" => "0";
   requires "ExtUtils::MakeMaker" => "0";
+  requires "File::Spec" => "0";
 };
 
 on 'develop' => sub {
@@ -38,6 +41,7 @@ on 'develop' => sub {
   requires "Dist::Zilla::Plugin::CPANFile" => "0";
   requires "Dist::Zilla::Plugin::CheckMetaResources" => "0";
   requires "Dist::Zilla::Plugin::CopyFilesFromRelease" => "0";
+  requires "Dist::Zilla::Plugin::DynamicPrereqs" => "0";
   requires "Dist::Zilla::Plugin::Encoding" => "0";
   requires "Dist::Zilla::Plugin::EnsureChangesHasContent" => "0";
   requires "Dist::Zilla::Plugin::EnsurePrereqsInstalled" => "0";

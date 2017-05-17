@@ -10,7 +10,9 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "a really awesome library",
   "AUTHOR" => "Diab Jerius <djerius\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => 0
+    "Config" => 0,
+    "ExtUtils::MakeMaker" => 0,
+    "File::Spec" => 0
   },
   "DISTNAME" => "Image-DS9",
   "LICENSE" => "gpl",
@@ -37,6 +39,7 @@ my %WriteMakefileArgs = (
     "Test::Fatal" => 0,
     "Test::More" => 0,
     "blib" => "1.01",
+    "lib" => 0,
     "parent" => 0
   },
   "VERSION" => "0.187",
@@ -62,11 +65,20 @@ my %FallbackPrereqs = (
   "Test::More" => 0,
   "blib" => "1.01",
   "constant" => 0,
+  "lib" => 0,
   "namespace::clean" => 0,
   "parent" => 0,
   "strict" => 0,
   "warnings" => 0
 );
+
+# inserted by Dist::Zilla::Plugin::DynamicPrereqs 0.033
+if (! can_run( 'ds9' )) {
+print "Missing external dependency: ds9 executable\n";
+print STDERR "NA: Unable to build distribution on this platform.\n";
+exit(0);
+}
+
 
 
 unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
@@ -79,3 +91,40 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
 WriteMakefile(%WriteMakefileArgs);
+
+# inserted by Dist::Zilla::Plugin::DynamicPrereqs 0.033
+sub can_run {
+  my ($cmd) = @_;
+
+  return $cmd if -x $cmd;
+  if (my $found_cmd = MM->maybe_command($cmd)) {
+    return $found_cmd;
+  }
+
+  for my $dir ((split /$Config::Config{path_sep}/, $ENV{PATH}), '.') {
+    next if $dir eq '';
+    require File::Spec;
+    my $abs = File::Spec->catfile($dir, $cmd);
+    return $abs if (-x $abs or $abs = MM->maybe_command($abs));
+  }
+
+  return;
+}
+
+# Fix Cygwin bug on maybe_command(), fixed in EUMM 6.69_04
+BEGIN { if ( $^O eq 'cygwin' ) {
+  require ExtUtils::MM_Cygwin;
+  require ExtUtils::MM_Win32;
+  {
+    no warnings 'redefine';
+    package ExtUtils::MM_Cygwin;
+    sub maybe_command {
+      my ($self, $file) = @_;
+      my $cygpath = Cygwin::posix_to_win_path('/', 1);
+      my $filepath = Cygwin::posix_to_win_path($file, 1);
+      return (substr($filepath,0,length($cygpath)) eq $cygpath)
+        ? $self->SUPER::maybe_command($file) # Unix
+        : ExtUtils::MM_Win32->maybe_command($file); # Win32
+    }
+  }
+} }
