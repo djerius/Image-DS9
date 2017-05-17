@@ -2,6 +2,13 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.187     2017-05-17 14:45:35-04:00 America/New_York
+
+  [ BUILD ]
+
+    * switch to Dist::Zilla
+    * make tests compatable with ds9 v 7.5 output
+    * make compatible with Perl 5.26's no '.' in @INC.
 
 0.186	2016-08-10T12:21:52-0400
 
