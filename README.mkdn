@@ -236,6 +236,29 @@ available.
     **WaitTimeOut** seconds if no timeout is supplied, else
     the given time.  It returns true upon success.
 
+- set\_attr
+
+        $dsp->set_attr( $attr_name => $attr_value, ... );
+
+    Set the attribute to the given value.  The following attributes may be
+    set:
+
+        WaitTimeOut
+        WaitTimeInterval
+        min_servers
+        kill_on_destroy
+        auto_start
+        verbose
+
+    Changing other attributes will result in undefined behavior.
+
+- get\_attr
+
+        $attr_value = $dsp->get_attr( $attr_name );
+
+    Retrieve the value of an attribute.  Valid attribute names
+    are those which can be passed to ["new"](#new).
+
 ## Control Methods
 
 Most methods exactly parallel the **DS9** **XPA** commands.  In general
