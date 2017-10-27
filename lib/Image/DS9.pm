@@ -87,7 +87,7 @@ sub _flatten_hash
 
     $self->{xpa_attrs}{max_servers} = $self->nservers || 1;
 
-    $self->set_attrs($u_attrs);
+    $self->set_attr( %$u_attrs);
 
     $self->{cmd_attrs}{ResErrCroak} = 1
       unless $self->{cmd_attrs}{ResErrWarn} ||
@@ -104,26 +104,35 @@ sub _flatten_hash
     $self;
   }
 
-  sub set_attrs
+  sub set_attr
   {
     my $self = shift;
-    my $u_attrs = shift;
 
-    my %ukeys = map { $_ => 1 } keys %$u_attrs;
+    my %attr = @_;
 
-    return unless $u_attrs;
-    do { $self->{xpa_attrs}{$_} = $u_attrs->{$_}; delete $ukeys{$_} }
-      foreach grep { exists $def_xpa_attrs{$_} } keys %$u_attrs;
+    $self->{xpa_attrs}{$_} = delete $attr{$_}
+      foreach grep { exists $def_xpa_attrs{$_} } keys %attr;
 
-    do { $self->{cmd_attrs}{$_} = $u_attrs->{$_}; delete $ukeys{$_} }
-      foreach grep { exists $def_cmd_attrs{$_} } keys %$u_attrs;
+    $self->{cmd_attrs}{$_} = delete $attr{$_}
+      foreach grep { exists $def_cmd_attrs{$_} } keys %attr;
 
-    do { $self->{$_} = $u_attrs->{$_} ; delete $ukeys{$_} }
-      foreach grep { exists $def_obj_attrs{$_} } keys %$u_attrs;
+    $self->{$_} = delete $attr{$_}
+      foreach grep { exists $def_obj_attrs{$_} } keys %attr;
 
     croak( __PACKAGE__, ": unknown attribute(s): ",
-           join( ', ', sort keys %ukeys ) )
-      if keys %ukeys;
+           join( ', ', sort keys %attr ) )
+      if keys %attr;
+  }
+
+  sub get_attr {
+
+    my ( $self, $attr ) = @_;
+
+    exists $_->{$attr} && return $_->{$attr}
+      for $self, $self->{xpa_attrs}, $self->{cmd_attrs};
+
+    croak( __PACKAGE__, ": unknown attribute: $attr" );
+
   }
 
 }
