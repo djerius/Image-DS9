@@ -24,6 +24,7 @@ BEGIN {
 use IPC::XPA;
 
 use Image::DS9::Command;
+use Time::HiRes qw[ sleep ];
 
 use constant SERVER => 'ds9';
 
@@ -49,6 +50,7 @@ sub _flatten_hash
 
   my %def_obj_attrs = ( Server => SERVER,
                         WaitTimeOut => 30,
+                        WaitTimeInterval => 0.1,
                         min_servers => 1,
                         res_wanthash => 1,
                         verbose => 0
@@ -161,13 +163,14 @@ sub wait
 {
   my $self = shift;
   my $timeout = shift || $self->{WaitTimeOut};
+  my $timeinterval = $self->{WaitTimeInterval};
 
   unless( $self->nservers )
   {
     my $cnt = 0;
-    sleep(1)
+    sleep( $timeinterval )
       until $self->nservers >= $self->{min_servers}
-            || $cnt++ > $timeout;
+            || ($cnt += $timeinterval) > $timeout;
   }
 
   return $self->nservers >= $self->{min_servers};
