@@ -49,10 +49,12 @@ sub _flatten_hash
 {
 
   my %def_obj_attrs = ( Server => SERVER,
-                        WaitTimeOut => 30,
+                        WaitTimeOut => 2,
                         WaitTimeInterval => 0.1,
                         min_servers => 1,
                         res_wanthash => 1,
+                        kill_on_destroy => 0,
+                        auto_start => 0,
                         verbose => 0
                       );
 
@@ -98,8 +100,9 @@ sub _flatten_hash
                    !!$self->{cmd_attrs}{ResErrWarn} +
                    !!$self->{cmd_attrs}{ResErrIgnore});
 
-    $self->wait( )
-      if defined $self->{Wait};
+    $self->_start_server( $self->{auto_start} )
+      if $self->{auto_start} && !$self->nservers;
+
 
     $self;
   }
@@ -139,7 +142,17 @@ sub _flatten_hash
 
 sub DESTROY
 {
-  $_[0]->{xpa}->Close if defined $_[0]->{xpa};
+    my $self = shift;
+
+    if ( defined $self->{xpa} ) {
+        $self->quit
+          if $self->get_attr( 'kill_on_destroy' );
+        $self->{xpa}->Close;
+    }
+
+    # note that if we had to start up a bespoke ds9 instance, the
+    # Proc::Simple object will also kill the process upon destruction.
+
 }
 
 #####################################################################
@@ -183,6 +196,37 @@ sub wait
   }
 
   return $self->nservers >= $self->{min_servers};
+}
+
+
+sub _start_server {
+
+    my ( $self, $timeout ) = @_;
+
+    $timeout = $timeout < 0 ? -$timeout : $self->get_attr( 'WaitTimeOut' );
+
+    return if $self->wait( $timeout );
+
+    require Proc::Simple;
+
+    $self->{_process} = Proc::Simple->new;
+    $self->{_process}->kill_on_destroy( $self->get_attr( 'kill_on_destroy' ) );
+
+    my @cmd = (
+        'ds9',
+        (
+            defined $self->{Server}
+            ? ( -title => $self->{Server} )
+            : ()
+        ),
+    );
+
+
+    $self->{_process}->start( @cmd )
+      or croak( "error running @cmd\n" );
+
+    $self->wait() or croak( "error connecting to ds9 (@cmd)\n " );
+
 }
 
 

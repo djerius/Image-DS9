@@ -153,12 +153,13 @@ The optional hash B<attrs> may contain one of the following keys:
 
 =item Server
 
-An alternate server to which to communicate.  It defaults to C<ds9>.
+The title of the C<ds9> process with which to communicate.  It
+defaults to C<ds9>.
 
 =item WaitTimeOut
 
 The default number of seconds that the B<wait()> method should
-try to contact B<DS9> servers.
+try to contact B<DS9> servers. It defaults to C<2> seconds.
 
 =item max_servers
 
@@ -171,6 +172,18 @@ called.
 The minimum number of servers which should respond to commands.  If
 a response is not received from at least this many servers, an exception
 will be thrown.  It defaults to C<1>.
+
+=item auto_start
+
+Create a B<ds9> process with the title specified by the C<Server>
+attribute if one does not exist. It polls for an existing process
+for the time period specified via C<WaitTimeOut> before creating
+a new one.
+
+=item kill_on_destroy
+
+Terminate the B<ds9> process when the B<Image::DS9> object is
+destroyed.
 
 =item ResErrCroak
 
@@ -228,15 +241,7 @@ information on what the hashes contain.
 Try to contact the B<DS9> servers, and wait until at least
 B<min_servers> have replied.  It will attempt this for
 B<WaitTimeOut> seconds if no timeout is supplied, else
-the given time.  It returns true upon success.  This routine
-is useful for doing things like:
-
-  $dsp = new Image::DS9;
-  unless ( $dsp->nservers )
-  {
-    system("ds9 &" );
-    $dsp->wait() or die( "unable to connect to DS9\n" );
-  }
+the given time.  It returns true upon success.
 
 =back
 
