@@ -243,6 +243,29 @@ B<min_servers> have replied.  It will attempt this for
 B<WaitTimeOut> seconds if no timeout is supplied, else
 the given time.  It returns true upon success.
 
+=item set_attr
+
+  $dsp->set_attr( $attr_name => $attr_value, ... );
+
+Set the attribute to the given value.  The following attributes may be
+set:
+
+  WaitTimeOut
+  WaitTimeInterval
+  min_servers
+  kill_on_destroy
+  auto_start
+  verbose
+
+Changing other attributes will result in undefined behavior.
+
+=item get_attr
+
+  $attr_value = $dsp->get_attr( $attr_name );
+
+Retrieve the value of an attribute.  Valid attribute names
+are those which can be passed to L</new>.
+
 =back
 
 
